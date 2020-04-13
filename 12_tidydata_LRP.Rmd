@@ -1,0 +1,711 @@
+---
+title: "12 tidy data"
+author: "LRP"
+date: "2 April 2020"
+output: 
+  html_document:
+  theme: readable
+      
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+![**_Ms. Tidy_**](images12/mk.png)
+<br> <br> <br> <br> <br> <br> <br> <br>
+_____________________________________________________________________________________________________
+
+Vamos a hablar de la estructura de los datos, de cómo tienen que estar estructurados para poder hacer análisis fácilmente. ...¿Hacer qué análisis fácilmente? Bueno... los que en general se hacen en R. Hay otras versiones de datos no-ordenados que no son "desordenados", sino que tienen estructuras particulares que sirven para hacer análisis particulares. No vamos a encargarnos de eso hoy. 
+
+###Hoy sí vamos a hablar de **datos ordenados** como nombre propio: 
+
+un tipo particular de estructura de los datos que lo entiende perfectamente bien R.
+
+En el mundo R pega más el nombre en inglés, que de hecho ayuda a hacer búsquedas de ayuda en estos temas: **tidy data**
+<br> <br> <br> <br> <br> <br> <br> <br>
+_____________________________________________________________________________________________________
+
+##¿Cómo es un grupo de datos ordenado?
+* cada variable en una columna
+* cada  observación es una fila
+* cada valor está en una celda
+
+Y como la mejor manera de entender es con un ejemplo, vamos a meternos en el ejemplo del libro:
+<br> <br> <br> <br> <br> <br> <br> <br>
+
+
+```{r paquetes, include = FALSE, warning=FALSE, results = 'hide'}
+library(tidyverse)
+library(datos)
+```
+# Datos para trabajar: casos registrados de tuberculosis en Afganistán, Brasil y China en 1999 y 2000 por la OMS.
+<center>
+![_bacilos_](images12/bacilos.png)
+</center>
+
+###Existen diferentes maneras de ver los datos:
+```{r echo=T}
+knitr::kable(tabla1, caption = "tabla1")
+
+knitr::kable(tabla2,caption = "tabla2")
+
+knitr::kable(tabla3,caption = "tabla3")
+
+```
+
+También podemos tener tablas parciales, por ejemplo:
+
+una con la cantidad de casos
+```{r}
+knitr::kable(tabla4a, caption = "tabla4a")
+
+```
+
+y otra con el tamaño de la población
+```{r}
+knitr::kable(tabla4b, caption = "tabla4b")
+```
+
+La única versión de los datos que es **ordenada** es la tabla 1.
+<br> <br> <br> <br> <br> <br> <br> <br>
+
+
+##¿Por qué es mejor trabajar con datos ordenados?
+Ante todo es lo que usan `ggplot2` y `dplyr`
+
+Pero además:
+
++ más fácil de escribir código
+
++ más fácil de reutilizar
+
++ más fácil hacer cálculos
+
+<br> <br> <br> <br> <br> <br> <br> <br>
+
+
+Por ejemplo,
+
++ si queremos calcular la tasa de casos de tuberculosis por cada 10000 habitantes:
+```{r}
+tabla1 %>%
+  mutate(tasa = casos / poblacion * 10000)
+```
+
++ si queremos calcular los casos por año
+```{r}
+tabla1 %>%
+  count(anio, wt = casos)
+```
+
++ o si queremos ver cambios en el tiempo
+```{r}
+library(ggplot2)
+ggplot(tabla1, aes(anio, casos)) +
+  geom_line(aes(group = pais), colour = "grey50") +
+  geom_point(aes(colour = pais))
+```
+
+Todos esos cálculos son directos con la aproximación de los verbos de dplyr, que usan la forma en que R entiende el entorno: vectores de datos como columnas en grupos de datos. Si quisiéramos graficar el cambio en la abundancia poblacional en el tiempo sería tan simple como reemplazar el nombre de la variable en el código ggplot.
+
+      escribir/reutilizar/calcular --> tidy data
+
+Obtener estos resultados partiendo de las tablas 2, 3, 4a y 4b es realmente más engorroso, y no permite usar los verbos dplyr que aprendimos. Los ejercicios del libro piden hacerlo y ahí se hace evidente que hay que usar subsetting de R base que es bastante menos amable y que quizás no todas sabemos hacer si arrancamos nuestro aprendizaje por **tidyverse**. 
+<br> <br> <br> <br> <br> <br> <br> <br>
+_____________________________________________________________________________________________________
+
+
+Situación habitual: datos no ordenados... ¿cómo llevarlos a su versión tidy?
+
+# Convertir data en tidy data
+
+Problemas:
+
++ Una variable se extiende por varias columnas
++ Una observación está dispersa entre múltiples filas.
+
+## `pivot_longer()`
+
+Miremos de nuevo la tabla 4a
+```{r}
+knitr::kable(tabla4a, caption = "tabla4a")
+
+```
+
+Problemas: las columnas representan valores que puede tomar una variable, y no una variable.
+*1999* y *2000* son valores que puede tomar la variable *año*
+Este verbo me va a permitir fabricar un par de variables: reunir esas dos columnas en una sola que sea la variable que debería ser, y fabricar otra variable que contenga los valores correspondientes.
+
+Necesito:
+
++ el conjunto de columnas que son valores de la variable: acá **1999** y **2000**
+
++ el nombre de la variable que va a agrupar los niveles que están en las columnas, que llamamos `names_to`: en este caso **año**
+
++ el nombre de la variable que va a contener los valores que están en las celdas, que llamamos `values_to`: en este caso: **casos** de tuberculosis
+
+```{r}
+knitr::kable(tabla4a %>%
+  pivot_longer(cols = c(`1999`, `2000`), names_to = "año", values_to = "casos"))
+```
+
+Lo que hicimos es *pivotar* o *girar* los datos: de *largos* a *anchos*
+
+Visualmente se vería así:
+
+<center>
+![](images12/fig122.png)
+</center>
+
+<br> <br> <br> <br> <br> <br> <br> <br>
+
+**cosas a tener en cuenta**
+
++ las columnas elegidas son sólo 2, entonces podemos nombrarlas de a una separadas por comas y está bien, pero si fueran más podríamos usar TODOS los criterios que vimos en el capítulo de manipulación de datos con dplyr y `select()`
+
++ los nombres de estas columnas son numéricos, por eso para que se entiendan necesitan el *backtick* (en un df normal y no tibble no podríamos haber usado esos nombres de columna)
+
+Podemos hacer lo mismo con la tabla 4b que tenía el tamaño poblacional de los países
+
+```{r}
+tabla4b %>%
+  pivot_longer(cols = c(`1999`,`2000`), names_to = "año", values_to = "casos")
+knitr::kable(tabla4b%>%
+  pivot_longer(cols = c(`1999`,`2000`), names_to = "año", values_to = "casos"), caption = "tabla4b")
+```
+
+Si queremos juntar las versiones ordenadas de las tablas 4a (casos tuberculosis) y 4b (población) podemos usar la función `left_join()`
+
+```{r}
+tidy4a <- tabla4a %>%
+  pivot_longer(cols = c(`1999`,`2000`), names_to = "año", values_to = "casos")
+
+tidy4b <- tabla4b %>%
+  pivot_longer(cols = c(`1999`,`2000`), names_to = "año", values_to = "casos")
+
+left_join(tidy4a, tidy4b)
+
+knitr::kable(left_join(tidy4a,tidy4b))
+```
+
+_____________________________________________________________________________________________________
+<center>
+![](images12/importante.jpg){ width=30% }
+</center>
+
+
+### versión vieja de esta función: `gather()`
+Muy muy parecido y seguirá funcionando al mismo tiempo que `pivot_longer()` por siempre.
+
+Necesito:
+
++ el conjunto de columnas que son valores de la variable: acá **1999** y **2000**
+
++ el nombre de la variable que está repartida en columnas, que llamamos `key`: en este caso **año**
+
++ el nombre de la variable que contiene los valores que están en las celdas, que llamamos `value`: en este caso: **casos** de tuberculosis
+
+```{r gather}
+tabla4a %>%
+  gather(`1999`, `2000`, key = "año", value = "casos")
+knitr::kable(tabla4a%>%
+  gather(`1999`, `2000`, key = "año", value = "casos"), caption = "tabla4a")
+```
+
+Para que las columnas nuevas sean del tipo adecuado (*año* como *character*... queremos *int*) se puede agregar el argumento `convert = TRUE`:
+
+```{r}
+tabla4a %>%
+  gather(`1999`, `2000`, key = "año", value = "casos", convert = TRUE)
+```
+
+
+Fíjense que las única diferencias son al llamar a las columnas que se van a reunir (separadas por comas en gather, como un vector en pivot_longer) y que en vez de definir la variable que contiene categorías como `key` lo hacemos con la forma más intuitiva `names_to`, y lo mismo con `value` y `values_to`. Así que si ya habían aprendido a usar `gather()` no cambia mucho. Lo que sí cambia es que `pivot_longer` es una versión mejorada de esta forma de reestructurar sets de datos, y entonces permite hacer muchas más cosas que `gather()` no permitía.Por ejemplo, usando `pivot_longer()` es posible definir una estructura compleja de nombres de columnas. Vamos a volver a esto cuando lleguemos al ejemplo al final.
+
+<br> <br> <br> <br> <br> <br> <br> <br>
+_____________________________________________________________________________________________________
+
+## `pivot_wider()`
+
+Cuando una observación aparece en múltiples filas...
+Miremos de nuevo la tabla2
+
+```{r}
+knitr::kable(tabla2,caption = "tabla2")
+```
+
+el problema acá está en las filas: hay información repetida! Hay dos filas para cada país en cada año. Para resolver eso tenemos que *esparcir* esa información, de manera de eliminar el doble registro de cada observación.Queremos que el set de datos que está *largo* pase a estar *ancho*.
+
+Para hacerlo necesitamos sólo 2 elementos:
+
++ el nombre de la columna que contiene a las 2 variables, de donde tomaremos los nombres, de ahí el arggumento `names_from`: en este caso es **tipo**
+
++ el nombre de la columna que contiene los valores de múltiples variables, de donde tomaremos los valores, de ahí el nombre del argumento `values_from`: en este caso es **cuenta**
+
+```{r}
+tabla2 %>%
+  pivot_wider(names_from = tipo, values_from = cuenta)
+knitr::kable(tabla2 %>%
+  pivot_wider(names_from = tipo, values_from = cuenta))
+
+```
+
+Visualmente hicimos esto:
+
+<center>
+![](images12/fig123.png)
+</center>
+
+<br> <br> <br> <br> <br> <br> <br> <br>
+
+<center>
+![](images12/importante.jpg){ width=30% }
+</center>
+
+### versión vieja de esta función: `spread()`
+
+Para hacerlo necesitamos sólo 2 elementos:
+
++ el nombre de la columna que contiene a las 2 variables, la `key`: en este caso es **tipo**
+
++ el nombre de la columna que contiene los valores de múltiples variables, `value`: en este caso es **cuenta**
+
+```{r}
+tabla2 %>%
+  spread(key = tipo, value = cuenta)
+knitr::kable(tabla2 %>%
+  spread(key = tipo, value = cuenta))
+
+```
+
+
+<br> <br> <br> <br> <br> <br> <br> <br>
+
+### cosas a tener en cuenta:
+pivot_longer y pivot_wider no son exactamente simétricas... mismo ocurre con gather() y spread()
+
++ Cuando usamos `pivot_wider()` los argumentos `names_from` y `values_from` son columnas que existen, que son vectores, y entonces el nombre que usemos es un objeto en R y no necesita comillas.
+Lo mismo ocurre al usar `spread()` con los argumentos `key` y `value`
+
++ Cuando hacemos un `pivot_longer()` los argumentos `names_to` y `values_to` son objetos que no existen todavía, que se van a crear con el nombre que digamos, entonces sí o sí esos argumentos llevan el nombre que elijamos como secuencia de caracteres entre comillas.
+Lo mismo ocurre al usar `gather()` con los argumentos `key` y `value`
+
+<br> <br> <br> <br> <br> <br> <br> <br>
+_____________________________________________________________________________________________________
+
+Más problemas de datos no ordenados:
+
++ una columna contiene 2 variables combinadas
++ muchas columnas contienen la información de 1 variables
+
+## `separate()`
+
+Volvamos a la tabla 3
+```{r separate}
+knitr::kable(tabla3)
+```
+
+Lo que vamos a hacer es simplemente separar el contenido de las celdas según un criterio separador
+
+Necesitamos:
+
++ la columna que contiene las variables combinadas, en esta caso **tasa**
+
++ los nombres de las variables en las que la vamos a separar, por ej.: **casos** y **población**
+
+```{r}
+knitr::kable(tabla3 %>%
+  separate(tasa, into = c("casos", "poblacion")))
+```
+
+<center>
+![](images12/fig124.png)
+</center>
+
+<br> <br> <br> <br> <br> <br> <br> <br>
+
+Por defecto `separate()` usa para separar el valor alfanumérico que encuentre. Pero esto puede especificarse en el argumento `sep` de la función:
+
+```{r}
+knitr::kable(tabla3 %>%
+  separate(tasa, into = c("casos", "poblacion"), sep = "/"))
+```
+
+###cosas a tener en cuenta:
+
++ por defecto `separate()` conserva el tipo de dato de la columna original en las 2 nuevas
+
+Como **tasa** era una cadena de caracteres, se mantiene eso en las variables **caso** y **población**.
+
+```{r}
+tabla3 %>%
+  separate(tasa, into = c("casos", "poblacion"), sep = "/")
+
+```
+
+Podemos hacer lo mismo que hicimos con `gather()` y usar el argumento `convert = TRUE` 
+
+```{r}
+tabla3 %>%
+  separate(tasa, into = c("casos", "poblacion"), sep = "/", convert = TRUE)
+```
+
++ también se pueden pasar a `sep` posiciones como números enteros: `separate()` interpreta los enteros como las posiciones donde dividir. Los valores positivos comienzan en 1 al extremo izquierdo de las cadenas de texto; los valores negativos comienzan en -1 al extremo derecho. Al usar enteros para separar cadenas de texto, el largo de `sep` debe ser uno menos que la cantidad de elementos en `into`.
+
+<center>
+![](images12/sep_lados.png)
+</center>
+
+Puedes usar este arreglo para separar los últimos dos dígitos de cada año. Esto deja los datos menos ordenados, pero es útil en otros casos, como se verá más adelante.
+```{r}
+tabla3 %>%
+  separate(anio, into = c("siglo", "anio"), sep = 2, convert = TRUE)
+```
+
+_____________________________________________________________________________________________________
+
+##`unite()`
+
+Es lo opuesto a `separate()`
+No se usará con tanta frecuencia pero es una herramienta útil llegado el caso.
+Probemos revertir lo que hicimos en el ejercicio anterior con `separate()` que está guardado en el objeto `tabla5`. Mirémoslo:
+
+```{r}
+knitr::kable(tabla5)
+```
+
+Ahora hagamos el `unite()`
+Los argumentos son el objeto sobre el que vamos a trabajar (**tabla5**), el nombre de la nueva variable (**nueva**) y las columnas que se van a reunir (**siglo**, **anio**). 
+```{r}
+knitr::kable(tabla5 %>%
+  unite(nueva, siglo, anio))
+```
+
+Por defecto la combinación se hace usando el separador **_**
+Si queremos usar otro separador o ninguno, lo podemos especificar en en el argumento `sep`
+
+```{r}
+knitr::kable(tabla5 %>%
+  unite(nueva, siglo, anio, sep = ""))
+```
+
+###yapas:
+
+1. argumento `remove` por defecto `TRUE`: elimina las columnas originales del objeto final. Cambiando a `FALSE` logramos que las mantenga.
+
+
+1. cuando no coincide la cantidad de elementos en los que se va a separar con la cantidad de elementos a separar:
+
+así:
+<center>
+![](images12/separate_yapas.png){ width=50% }
+</center>
+
+o así:
+<center>
+![](images12/separate_yapas2.png){ width=50% }
+</center>
+
+
+Probemos:
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>%
+  separate(x, c("one", "two", "three"))
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+  separate(x, c("one", "two", "three"))
+```
+
+los warnings avisan que se hizo algo que no es perfecto.
+Llenar con los valores de izquierda a derecha:
+lo que sobra se descarta, lo que falta se completa con NA
+
+Las yapas:
+
++ argumento `extra`: cuando hay más elementos de los esperados le podemos decir cómo trabajarlos.
+
+"drop": elimina los que sobran sin avisar
+
+"merge": separa en la cantidad de elementos y junta en la celda final los que sobran
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>%
+  separate(x, c("one", "two", "three"), extra = "merge")
+```
+
++ argumento `fill`: cuando hay menos elementos que los esperados le podemos decir si:
+
+"right": completa colocando valores faltantes a la derecha
+
+"left": completa colocando valores faltantes a la izquierda
+
+```{r}
+tibble(x = c("a,b,c", "d,e",   "f,g,i")) %>%
+  separate(x, c("one", "two",     "three"), fill = "left")
+
+```
+
+1. `extract()`: este argumento sirve para usar grupos de regular expresions y hacer búsquedas más complejas (¿alguien de bases de datos por aquí?)
+<br> <br> <br> <br> <br> <br> <br> <br>
+_____________________________________________________________________________________________________
+
+##Valores faltantes
+Modificar un grupo de datos conlleva el riesgo de perder datos... Hay 2 tipos de datos faltantes:
+
++ explícitos: aparecen NAs
+
++ implícitos: no existe esa celda
+
+Mirémoslo con un ejemplo
+```{r}
+acciones <- tibble(
+  anio = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  trimestre = c(1, 2, 3, 4, 2, 3, 4),
+  retorno = c(1.88, 0.59, 0.35, NA, 0.92, 0.17, 2.66)
+)
+knitr::kable(acciones)
+```
+
+Hay dos datos faltantes en este grupo de datos:
+
++ El 4to trimestre de 2015: `NA` (explícito)
+
++ El 1ero de 2016: no aparece (implícito)
+
+*Un valor faltante explícito es la presencia de una ausencia; un valor faltante implícito es la ausencia de una presencia.*
+
+La forma en que se representa un dataset puede dejar explícitos los valores implícitos. 
+
+Por ejemplo, podemos volver explícitos los valores faltantes implícitos al mover los años a las columnas, y luego volver a reunirlos explicitando los valores faltantes:
+
+```{r}
+acciones %>%
+  spread(anio, retorno)%>%
+  gather(anio, retorno, `2015`:`2016`, na.rm = FALSE)
+
+```
+
+Si queremos descartar todos los datos faltantes cambiamos el argumento `na.rm = TRUE`
+
+```{r}
+acciones %>%
+  spread(anio, retorno)%>%
+  gather(anio, retorno, `2015`:`2016`, na.rm = TRUE)
+
+```
+
+
+Otra herramienta
+
+##`complete()`
+
+Toma un conjunto de columnas y encuentra todas las combinaciones únicas. Luego se asegura de que el dataset original contenga todos los valores, completando con `NA`s donde sea necesario.
+
+```{r}
+acciones %>%
+  complete(anio, trimestre)
+```
+
+
+Una más:
+
+##`fill()`
+Este lo re conocemos! El famoso *arrastrar celda* de excel para repetir el contenido de la celda.
+El nombre del método es LOCF, del inglés *last observation carried forward* y básicamente lo que hace es completar copiando el último valor.
+
+Un ejemplo
+```{r}
+tratamiento <- tribble(
+  ~sujeto, ~tratamiento, ~respuesta,
+  "Derrick Whitmore", 1, 7,
+  NA, 2, 10,
+  NA, 3, 9,
+  "Katherine Burke", 1, 4
+)
+
+knitr::kable(tratamiento)
+```
+
+Para usar `fill()` necesitamos mencionar la variable sobre la que se quiere completar faltantes usando el método de copiar el último valor. En este caso la variable es **sujeto**.
+
+```{r}
+tratamiento %>%
+  fill(sujeto)
+
+knitr::kable(tratamiento %>%
+  fill(sujeto))
+```
+
+###yapas `fill()`
+
++ El argumento `.direction` permite completar con el siguiente valor (`up`), y versiones con el primero de una forma y el resto de otra (`updown` y `downup`).
+
+```{r}
+knitr::kable(tratamiento %>%
+  fill(sujeto, .direction = "up"))
+
+```
+
++ argumento `fill` existe también en `spread()` pero ahí lo que hace es especificar con cuál valor rellenar las celdas que no puedan llenarse con nada. La ventaja de especificarlo es que explicita los missing values implícitos! (resume `spread()` y después `complete()`).
+
+<br> <br> <br> <br> <br> <br> <br> <br>
+_____________________________________________________________________________________________________
+
+## Estudio de caso 
+
+### Tuberculosis: de los datos del sistema de salud a la ciencia de datos
+
+Combinemos todo lo que aprendimos para enfrentar un problema real de ordenamiento de datos. El dataset `datos::oms` contiene datos de tuberculosis (TB) detallados por año, país, edad, sexo y método de diagnóstico. Los datos provienen del *Informe de Tuberculosis de la Organización Mundial de la Salud 2014*, disponible en <http://www.who.int/tb/country/data/download/en/>.
+
+Existe abundante información epidemiológica en este dataset, pero es complicado trabajar con estos datos tal como son entregados:
+
+```{r}
+oms
+```
+
+La vida misma: columnas redundantes, códigos extraños de variables y muchos valores faltantes. 
+`oms` está desordenado y necesitamos varios pasos para ordenarlo. Al igual que **dplyr**, **tidyr** está diseñado de modo tal que cada función hace bien una cosa. Esto significa que en una situación real deberás encadenar múltiples verbos.
+
+Casi siempre, la mejor forma de comenzar es reunir las columnas que no representan variables. Miremos lo que hay:
+
+* `pais`, `iso2` e `iso3` parecen variables redundantes para **país**.
+
+* `anio` es claramente una variable.
+
+* No sabemos aún el significado de las otras columnas, pero dada la estructura de los nombres de las variables (e.g. `nuevos_fpp_h014`, `nuevos_ep_h014`, `nuevos_ep_m014`) parecieran ser valores y no variables.
+
+Necesitamos agrupar todas las columnas desde `nuevos_fpp_h014` hasta `recaidas_m65`. No sabemos aún qué representa esto, por lo que le daremos el nombre genérico de `"clave"`. Sabemos que las celdas representan la cuenta de casos, por lo que usaremos la variable `casos`.
+
+Existen múltiples valores faltantes en la representación actual, por lo que de momento usaremos `na.rm` para centrarnos en los valores que están presentes.
+
+```{r}
+oms1 <- oms %>%
+  gather(nuevos_fpp_h014:nuevosrecaida_m65, key = "clave", value = "casos", na.rm = TRUE)
+oms1
+```
+
+Podemos tener una noción de la estructura de los valores en la nueva columna `clave` si hacemos un conteo:
+
+```{r}
+oms1 %>%
+  count(clave)
+```
+
+Podrías resolver esto por tu cuenta pensando y experimentando un poco, pero afortunadamente tenemos el diccionario de datos a mano. Este nos dice lo siguiente:
+
+1. Lo que aparece antes del primer `_` en las columnas indica si la columna contiene casos nuevos o antiguos de tuberculosis. En este dataset, cada columna contiene nuevos casos.
+
+2. Lo que aparece luego de indicar si se refiere a casos nuevos o antiguos es el tipo de tuberculosis:
+
+ * `recaida` se refiere a casos reincidentes
+ * `ep` se refiere a tuberculosis extra pulmonar
+ * `fpn` se refiere a casos de tuberculosis pulmonar que no se pueden detectar mediante examen de frotis pulmonar (frotis pulmonar negativo)
+ * `fpp` se refiere a casos de tuberculosis pulmonar que se pueden detectar mediante examen de frotis pulmonar (frotis pulmonar positivo)
+
+3. La letra que aparece después del último `_` se refiere al sexo de los pacientes. El conjunto de datos agrupa en hombres (`h`) y mujeres (`m`).
+
+4. Los números finales se refieren al grupo etario que se ha organizado en siete categorías:
+
+ * `014` = 0 -- 14 años de edad
+ * `1524` = 15 -- 24 años de edad
+ * `2534` = 25 -- 34 años de edad
+ * `3544` = 35 -- 44 años de edad
+ * `4554` = 45 -- 54 años de edad
+ * `5564` = 55 -- 64 años de edad
+ * `65` = 65 o más años de edad
+
+Necesitamos hacer un pequeño cambio al formato de los nombres de las columnas: desafortunadamente los nombres de las columnas son ligeramente inconsistentes debido a que en lugar de `nuevos_recaida` tenemos `nuevosrecaida`. Aprenderás sobre `str_replace()` en [cadenas de caracteres], pero la idea básica es bastante simple: reemplazar los caracteres "nuevosrecaida" por "nuevos_recaida". Esto genera nombres de variables consistentes.
+
+```{r}
+oms2 <- oms1 %>%
+  mutate(clave = stringr::str_replace(clave, "nuevosrecaida", "nuevos_recaida"))
+oms2
+```
+
+Podemos separar los valores en cada código aplicando `separate()` dos veces. La primera aplicación dividirá los códigos en cada `_`.
+
+```{r}
+oms3 <- oms2 %>%
+  separate(clave, c("nuevos", "tipo", "sexo_edad"), sep = "_")
+oms3
+```
+
+A continuación podemos eliminar la columna `nuevos`, ya que es constante en este dataset. Además eliminaremos `iso2` e `iso3` ya que son redundantes.
+
+```{r}
+oms3 %>%
+  count(nuevos)
+oms4 <- oms3 %>%
+  select(-nuevos, -iso2, -iso3)
+```
+
+Luego separamos `sexo_edad` en `sexo` y `edad` dividiendo luego del primer carácter:
+
+```{r}
+oms5 <- oms4 %>%
+  separate(sexo_edad, c("sexo", "edad"), sep = 1)
+oms5
+```
+
+¡Ahora el dataset `oms` está ordenado!
+<br> <br> <br> <br> <br> <br> <br> <br>
+
+Hemos mostrado el código parte por parte, asignando los resultados intermedios a nuevas variables. Esta no es la forma típica de trabajo. En cambio, lo que se hace es formar incrementalmente un encadenamiento complejo usando _pipes_:
+
+```{r, results = "hide"}
+oms_tidy <- oms %>%
+  gather(clave, valor, nuevos_fpp_h014:nuevosrecaida_m65, na.rm = TRUE) %>%
+  mutate(clave = stringr::str_replace(clave, "nuevosrecaida", "nuevos_recaida")) %>%
+  separate(clave, c("nuevos", "tipo", "sexo_edad")) %>%
+  select(-nuevos, -iso2, -iso3) %>%
+  separate(sexo_edad, c("sexo", "edad"), sep = 1)
+```
+
+```{r}
+knitr::kable(head(oms_tidy))
+```
+
+## Estudio de caso usando `pivot_longer()`
+
+Es un poco diferente al que está en el libro. Este ejemplo busca mostrar cómo hacer la interpretación en variables de los nombres de columnas especificando los argumentos de `pivot_longer()`. Es más difícil pero me parece que vale la pena justamente para entender por qué aprender `pivot_longer()` y `pivot_wider()` es superador de los anteriores `gather()` y `spread()`
+
+Cuando tenemos un caso como este del ejemplo, donde las variables están combinadas en códigos de letras, abreviaturas, símbolos, iniciales, etc, sería útil poder separar cada una de esas construcciones en sus componentes, simplemente explicando a qué variable corresponde cada parte.
+
+Uno de los argumentos que podemos especificar en `pivot_longer()` es (justamente!!!) `names_pattern`: permite especificar **en un solo** paso cómo se compone un nombre, y entonces usa esa información para entender en función de qué variables queremos *pivotar* la tabla. Para eso hay que proveer una expresión regular sobre grupos, identificados entre paréntesis. La sintaxis de esto no la puedo explicar con muuucho detalle porque mi entendimiento es superficial, pero la idea es que cada grupo entre paréntesis va a constituir una nueva variable (y columna) y el nombre construido se va a desarmar así: 
+
++ empieza textual con "nuevos" y termina (o no) con un "_". Eso no está entre paréntesis, no forma parte de ningún grupo y entonces no lo vamos a ver en la tabla final. Le estamos diciendo que elimine esa parte de los nombres.
+
++ sigue con el segundo grupo que va a ir a la columna llamada "tipo" que es el primer elemento del vector de `names_to`, y van a ser tooodos los caracteres que aparezcan, sin importar cuáles (el punto) ni cuántos (el asterisco) hasta que llegue al siguiente "_"
+
++ sigue con el segundo grupo que es "sexo", y va a estar construido por el primer elemento, sea el que sea pero uno (punto solo)
+
++ el último grupo va a estar constituido por todos los caracteres que resten, y se indica entre paréntesis de nuevo con un punto y asterisco. 
+
+De esta forma no solo explicamos cómo interpretar las columnas en nuevas variables adecuadas, sino que además eliminamos en un solo paso el problema de la inconsistencia entre formas de llamar a un mismo nivel (con y sin el guión bajo después de "nuevos") y eliminamos la información invariante "nuevos".
+
+```{r}
+oms_pl <- oms %>% pivot_longer(
+  cols = nuevos_fpp_h014:nuevosrecaida_m65,
+  names_to = c("tipo", "sexo", "edad"), 
+  names_pattern = "nuevos_?(.*)_(.)(.*)",
+  values_to = "valor")
+
+knitr::kable(head(oms_pl))
+```
+
+¿Qué no hicimos? No eliminamos los NA y eso podemos hacerlo agregando el argumento `values_drop_na  = T` a las especificaciones de `pivot_longer()`. Tampoco eliminamos las columnas redundantes del nombre de país, que lo hacemos como antes con un pipe y usando `select()`.
+
+```{r}
+oms_pl_sinNA <- oms %>% pivot_longer(
+  cols = nuevos_fpp_h014:nuevosrecaida_m65,
+  names_to = c("tipo", "sexo", "edad"), 
+  names_pattern = "nuevos_?(.*)_(.)(.*)",
+  values_to = "valor",
+  values_drop_na = TRUE)%>% 
+  select(-iso2, -iso3)
+
+knitr::kable(head(oms_pl_sinNA))
+```
+
+Ahora sí, Marie Kondo estaría orgullosa :)

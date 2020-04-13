@@ -1,0 +1,736 @@
+# Análisis exploratorio de datos (_EDA_)
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+```
+
+```{r include=FALSE}
+library(tidyverse)
+library(datos)
+```
+
+
+
+## Generalidades
+
+ análisis exploratorio de datos, o _EDA_ (por sus siglas en inglés _**e**xploratory **d**ata **a**nalysis_). El _EDA_ es un ciclo iterativo en el que:
+
+1. Se generan preguntas acerca de los datos.
+
+2. Se buscan respuestas visualizando, transformando y modelando los datos.
+
+3. Se refinan las preguntas y/o generar nuevas interrogantes. 
+
+```{r echo=FALSE}
+knitr::include_graphics("data-science.svg")
+```
+
+
+
+El _EDA_ es una parte importante de cualquier análisis, **siempre** hay que examinar la calidad de los datos.
+
+La limpieza de datos es una aplicación del _EDA_: hace preguntas acerca de si los datos cumplen con las expectativas o no. 
+
+Para limpiar los datos hay que desplegar todas las herramientas del _EDA_: visualización, transformación y modelado.
+
+
+
+El objetivo es desarrollar un entendimiento de los datos.
+
+¿Cómo?
+
+Usando estadísticos resumen y visualizaciones para interpretar mejor los datos, y observar tendencias en los datos, también la calidad de estos datos y formular suposiciones e hipótesis sobre nuestro análisis.
+
+El _EDA_ es un proceso fundamentalmente creativo. Y como tal, la clave para formular preguntas _de calidad_ es generar una gran _cantidad_ de preguntas.
+
+
+- Sugerir hipótesis sobre las causas de los fenómenos observados
+
+- Evaluar los supuestos en los que se basará la inferencia estadística
+
+- Apoyar la selección de herramientas y técnicas estadísticas apropiadas.
+
+- Proporcionar una base para una mayor recopilación de datos a través de nueva colecta de datos o experimentos.
+
+- Detectar valores atípicos (outliers), o sugerir transformaciones 
+
+
+
+
+Preguntas a plantearse:
+
+- ¿Tengo los datos correctos para responder esta pregunta?
+
+- ¿Se necesitan más datos u otros datos?  
+
+- ¿Los datos están completos? 
+
+- ¿Es necesario limpiar los datos? 
+
+- ¿Los datos están ordenados? 
+
+- ¿Pueden agregarse nuevos datos?
+
+
+
+La pregunta corresponde con lo que busco responder.
+Esto puede cambiar a medida que avanzan los analisis 
+
+
+Sin embargo, hay dos tipos de preguntas que siempre serán útiles para hacer descubrimientos dentro los datos. 
+
+
+1. ¿Qué tipo de variación existe dentro de cada una de mis variables?
+
+2. ¿Qué tipo de covariación ocurre entre  diferentes variables?
+
+
+### **Términos relevantes:**
+
+*   Una __variable__ es una cantidad, cualidad o característica mensurable, es decir, que se puede medir.
+
+*   Un __valor__ es el estado de la variable en el momento en que fue medida. El valor de una
+    variable puede cambiar de una medición a otra.
+  
+*   Una __observación__ es un conjunto de mediciones realizadas en condiciones similares
+     Una observación contiene muchos valores, cada uno asociado a una variable diferente. 
+     
+
+*   Los __datos tabulares__  son un conjunto de valores, cada uno asociado a 
+    una variable y a una observación.
+    
+    
+    Los datos tabulares están ordenados si cada valor está almacenado en su propia "celda", cada variable cuenta con su propia columna, y cada observación corresponde a una fila. 
+
+ **En la vida real, la mayor parte de los datos no  están ordenados de este modo!!!**
+
+## Variación
+
+La **variación** es la tendencia de los valores de una variable a cambiar de una medición a otra.
+
+Cada una de las mediciones incluirá una cantidad pequeña de error que variará de medición a medición. 
+
+
+
+Las **variables discretas o categóricas** también pueden variar si realizas mediciones con diferentes sujetos  o en momentos diferentes.
+
+
+La mejor manera de entender dicho patrón es visualizando la distribución de los valores de la variable. 
+
+
+
+## Antes de visualizar
+
+- `str()`  y  `summary`
+
+- Observar # observaciones y filas
+
+- Examinar variables y tipo de datos
+
+- Verifica las clases de las variables
+
+- ¿Son strings o factores?
+
+- ¿Son caracteres, fechas?
+
+- Correr las funciones `head()` and `tail()` . `tail()` puede ser  útil si hay un problema con el conjunto de datos, en el extremo final de los datos puede aparecer como NAs
+
+- Verificar que las columnas se vean correctamente
+
+
+- ¿Es correcto el número de observaciones / variables?
+
+- Mirar las columnas individualmente y vea si los datos están configurados correctamente
+
+- Observar las variables individualmente y ver si hay algo interesante en los conjuntos de datos.
+
+- `table()` y `prop.table()` son dos funciones útiles que muestran datos categóricos
+
+
+Entonces resumiendo:
+
+1. Formula tu pregunta
+
+1.  Lee los datos
+
+1.  Comprobar numero de filas y columnas
+
+1.  Ejecutar `str()`
+
+1.  Mirar la parte superior e inferior de sus datos.
+
+1.  Comprobar los "n" s
+
+1.  Validar con al menos una fuente de datos externa
+
+1.  Prueba la solución fácil primero
+
+1.  Desafía tu solución
+
+1.  Continuar!!!
+
+
+
+### Visualizando distribuciones
+
+Hay que distinguir entre gráficos exploratorios y gráficos finales.
+
+Lo que se busca en un gráfico exploratorio tiene un propósito distinto a un gráfico final. Priorizamos el entendimiento de los datos y próximas tareas a seguir.
+
+Muchas veces no tiene el grado de refinamiento de un gráfico final que va a ser usado para comunicar de modo más especifico.
+
+
+Cómo visualizar la distribución de una variable dependerá de si la variable es discreta o continua.
+
+
+
+
+#### Variables  categóricas
+
+Una variable es **discreta o categórica** si únicamente puede adoptar un valor correspondiente a un grupo limitado de valores. 
+
+En R, usualmente son guardadas como vectores de factores o de caracteres. 
+
+Para examinar la distribución de una variable discreta, se utiliza un gráfico de barras:
+
+```{r}
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte))
+```
+
+
+
+
+La altura de las barras muestra cuántas observaciones corresponden a cada valor de x. Puedes calcular estos valores con `dplyr::count()`:
+
+```{r}
+diamantes %>% 
+  count(corte)
+```
+
+
+
+### Variables  continuas
+
+Una variable es **continua** si puede adoptar un set infinito de valores ordenados (por ej. números y fechas-horas)   .
+
+
+Para examinar la distribución de una variable continua, usa un histograma:
+
+```{r}
+ggplot(data = diamantes) +
+  geom_histogram(mapping = aes(x = quilate), binwidth = 0.5)
+```
+
+Combinando `dplyr::count()` y `ggplot2::cut_width()`:
+
+```{r}
+diamantes %>% 
+  count(cut_width(quilate, 0.5))
+```
+
+Un histograma segmenta el eje horizontal en rangos equidistantes y después hace uso de la altura de la barra para mostrar el número de observaciones que corresponden a cada unidad o barra. 
+
+ 
+
+Se puede definir el ancho de los intervalos de un histograma con el argumento `binwidth` , que es medido en las unidades de la variable `x`. 
+
+Lo ideal es explorar una variedad de distintas medidas para el ancho del intervalo  trabajando con histogramas, pues distintas medidas pueden revelar diferentes patrones.
+
+```{r}
+pequenos <- diamantes %>% 
+  filter(quilate < 3)
+  
+ggplot(data = pequenos, mapping = aes(x = quilate)) +
+  geom_histogram(binwidth = 0.1)
+```
+
+Si hay que sobreponer múltiples histogramas en la misma gráfica, puede usarse `geom_freqpoly()` en lugar de `geom_histogram()`.
+
+`geom_freqpoly()` realiza el mismo cálculo que `geom_histogram()`, pero usa líneas en lugar de barras para mostrar los totales.
+
+
+```{r}
+ggplot(data = pequenos, mapping = aes(x = quilate, colour = corte)) +
+  geom_freqpoly(binwidth = 0.1)
+```
+
+
+### Valores típicos
+
+Tanto en gráficos de barra como en histogramas, las barras altas muestran los valores más comunes de una variable y las barras más cortas muestran valores menos comunes. 
+Espacios que no tienen barras revelan valores que no fueron observados en los datos. 
+
+
+
+* ¿Qué valores son los más comunes? ¿Por qué? 
+
+* ¿Qué valores son infrecuentes? ¿Por qué? 
+
+* ¿Puedes ver patrones inusuales? ¿Qué podría explicarlos? 
+
+
+```{r}
+ggplot(data = pequenos, mapping = aes(x = quilate)) +
+  geom_histogram(binwidth = 0.01)
+```
+
+Las agrupaciones de valores similares sugieren que existen ciertos subgrupos  en los datos. 
+
+
+
+El siguiente histograma muestra la duración (en minutos) de 272 erupciones del géiser Viejo Fiel (Old Faithful) en el Parque Nacional Yellowstone. 
+
+La duración de las erupciones parece estar agrupada en dos conjuntos: erupciones cortas (con duración de alrededor de dos minutos) y erupciones largas (4-5 minutos), y pocos datos en el intervalo intermedio.
+
+```{r}
+ggplot(data = fiel, mapping = aes(x = erupciones)) +
+  geom_histogram(binwidth = 0.25)
+```  
+
+
+
+
+### Valores inusuales
+
+Los valores atípicos, conocidos en inglés como _outliers_, son puntos en los datos que parecen no ajustarse al patrón. 
+**Algunas veces dichos valores atípicos son errores cometidos durante la ingesta de datos; otras veces sugieren nueva información.** 
+
+Cuando tienes una gran cantidad de datos, es difícil identificar los valores atípicos en un histograma. 
+
+
+En el set de datos de diamantes la única evidencia de la existencia de valores atípicos para la variable `y` son límites inusualmente anchos en el eje horizontal.
+
+```{r}
+ggplot(diamantes) + 
+  geom_histogram(mapping = aes(x = y), binwidth = 0.5)
+```   
+
+Hay tantas observaciones en las barras comunes que las barras infrecuentes son tan cortas que no es posible verlas a simple vista. 
+Para facilitar la tarea de visualizar valores inusuales, necesitamos acercar la imagen a los valores más pequeños del eje vertical con `coord_cartesian()`:
+
+```{r}
+ggplot(diamantes) + 
+  geom_histogram(mapping = aes(x = y), binwidth = 0.5) +
+  coord_cartesian(ylim = c(0, 50))
+```   
+
+`coord_cartesian()` también tiene un argumento `xlim()` para cuando es necesario acercar la imagen sobre el eje horizontal. 
+
+**No confundir** con las funciones `xlim()` e `ylim()` que funcionan de una manera distinta: ignoran los datos que se encuentran fuera de los límites.
+
+
+
+```{r, include = FALSE}
+viejo <- options(tibble.print_max = 10, tibble.print_min = 10)
+```
+
+```{r}
+# hay tres valores inusuales: 0, ~30, y ~60
+inusual <- diamantes %>% 
+  filter(y < 3 | y > 20) %>% 
+  select(precio, x, y, z) %>%
+  arrange(y)
+inusual
+```
+
+```{r, include = FALSE}
+options(viejo)
+```
+
+
+
+Es un buen hábito repetir el análisis con y sin los valores inusuales.
+
+Si tienen un efecto mínimo en los resultados y no puedes descubrir por qué están en los datos, es razonable reemplazarlos con valores ausentes y seguir adelante con tu análisis. 
+
+Sin embargo, si tienen un efecto sustancial en tus resultados, no deberías ignorarlos sin justificación. Deberás descubrir qué los causó (p.ej., un error en la entrada de datos) y explicitar que los removiste.
+
+
+## Valores faltantes
+
+Si hay valores inusuales en tu set de datos y simplemente quieres seguir con el resto de tu análisis, tienes dos opciones.
+
+1.  Desecha la fila completa donde están los valores inusuales:
+
+    ```{r, eval = FALSE}
+    diamantes2 <- diamantes %>% 
+      filter(between(y, 3, 20))
+    ```
+    
+    No se recomienda esta opción porque el hecho de que una medida sea inválida
+    no significa que todas las mediciones lo sean. Además, si la calidad o la cantidad 
+    de tus datos es baja, después de aplicar esta estrategia en todas tus variables 
+    ¡quizás te des cuenta que ya no tienes datos con los que trabajar! 
+
+1.  En lugar de eso, puede reemplazarse los valores inusuales con valores faltantes.
+    La manera más fácil de hacerlo es usar `mutate()` para reemplazar la   variable  con una copia editada de la misma. Puedes usar la función `ifelse()` para
+    reemplazar valores inusuales con `NA`:
+
+    ```{r}
+    diamantes2 <- diamantes %>% 
+      mutate(y = ifelse(y < 3 | y > 20, NA, y))
+    ```
+
+`ifelse()` tiene tres argumentos.
+El primer argumento `test` debe ser un vector lógico.
+
+
+El resultado contendrá el valor del segundo argumento, `sí`, cuando `test` sea `VERDADERO`, y el valor del tercer argumento, `no`, cuando sea falso.
+
+
+Como alternativa a __ifelse__, usa `dplyr::case_when()`. `case_when()` es particularmente útil dentro de __mutate__ cuando quieras crear una nueva variable que dependa de una combinación compleja de variables existentes.
+
+Como R, ggplot2 suscribe la filosofía de que los valores faltantes nunca deberían desaparecer silenciosamente. 
+
+```{r, dev = "png"}
+ggplot(data = diamantes2, mapping = aes(x = x, y = y)) + 
+  geom_point()
+```
+
+Para eliminar esa alerta, define `na.rm = TRUE`:
+
+```{r, eval = FALSE}
+ggplot(data = diamantes2, mapping = aes(x = x, y = y)) + 
+  geom_point(na.rm = TRUE)
+```
+
+En otras ocasiones querrás entender qué diferencias hay entre las observaciones con valores faltantes y las observaciones con valores registrados.
+
+Por ejemplo, en `datos::vuelos` los valores faltantes en la variable `horario_salida` indicaban que el vuelo había sido cancelado, por lo que uno querría comparar el horario de salida programado para los vuelos cancelados y los no cancelados.
+
+Esto puede hacerse  creando una nueva variable con `is.na()`.
+
+```{r}
+datos::vuelos %>% 
+  mutate(
+    cancelados = is.na(horario_salida),
+    hora_programada = salida_programada %/% 100,
+    minuto_programado = salida_programada %% 100,
+    salida_programada = hora_programada + minuto_programado / 60
+  ) %>% 
+  ggplot(mapping = aes(salida_programada)) + 
+    geom_freqpoly(mapping = aes(colour = cancelados), binwidth = 1/4)
+```
+
+Sin embargo, este gráfico no es tan bueno porque hay muchos más vuelos no cancelados que vuelos cancelados.
+
+
+
+
+
+## Covariación
+
+Si la variación describe el comportamiento _dentro_ de una variable, la covariación describe el comportamiento _entre_ variables.
+
+La **covariación** es la tendencia de los valores de dos o más variables a variar simultáneamente de una manera relacionada 
+La mejor manera de reconocer que existe covariación en tus datos es visualizar la relación entre dos o más variables. Cómo hacerlo dependerá de los tipos de variables involucradas.
+
+### Una variable discreta y una variable continua {#cat-cont}
+
+Es común querer explorar la distribución de una variable continua agrupada por una variable discreta, como lo hicimos en el polígono de frecuencia anterior. 
+
+
+La apariencia automática de `geom_freqpoly()` no es tan útil para este tipo de comparación, pues la altura está dada por la cuenta total.
+
+
+Eso significa que si uno de los grupos es mucho más pequeño que los demás, será difícil ver las diferencias en altura.
+
+```{r}
+ggplot(data = diamantes, mapping = aes(x = precio)) + 
+  geom_freqpoly(mapping = aes(colour = corte), binwidth = 500)
+```
+
+Resulta difícil observar las diferencias de las distribuciones porque las cuentas totales difieren en gran medida:
+
+```{r, fig.width = "50%", fig.width = 4}
+ggplot(diamantes) + 
+  geom_bar(mapping = aes(x = corte))
+```
+
+Para facilitar esta comparación necesitamos cambiar lo que se muestra en el eje vertical. En lugar de mostrar la cuenta total, mostraremos la __densidad__, que es lo mismo que la cuenta estandarizada de manera que el área bajo cada polígono es igual a uno.
+
+```{r}
+ggplot(data = diamantes, mapping = aes(x = precio, y = ..density..)) + 
+  geom_freqpoly(mapping = aes(colour = corte), binwidth = 500)
+```
+
+
+
+
+Otra alternativa para mostrar la distribución de una variable continua agrupada en relación con otra variable discreta es el diagrama de caja. 
+
+
+Cada diagrama de caja está integrado por:
+
+* Una caja que comprende desde el percentil 25 de la distribución hasta el percentil 75, 
+  distancia que se conoce como rango intercuartil. 
+  
+  En el centro de la caja se encuentra una línea que señala la mediana (es decir, el percentil 50),
+  de la distribución. Estas tres líneas te darán una idea sobre la dispersión de la 
+  distribución, así como también  mostrarán si la distribución es simétrica en torno a la mediana 
+  o si está sesgada hacia uno de los lados.
+
+* Los puntos que representan observaciones que se encuentran a más de 1.5 veces el_IQR_
+  a partir de cualquier borde de la caja. Estos puntos son inusuales en los datos, 
+  de manera que son graficados individualmente.
+
+* Una línea (o bigote) que se extiende a partir de cada borde de la caja hasta el punto
+  más lejano de la distribución que no sea considerado como un valor atípico.
+
+```{r echo=FALSE}
+knitr::include_graphics("EDA-boxplot.png")
+```
+
+Viendo la distribución de la variable precio en relación con el corte usando `geom_boxplot()`:
+
+```{r fig.height = 3}
+ggplot(data = diamantes, mapping = aes(x = corte, y = precio)) +
+  geom_boxplot()
+```
+
+Aunque hay menos información sobre la distribución, los diagramas de caja son más compactos, lo que hace que sea más fácil compararlos (y presentar más en un mismo gráfico).
+
+
+`corte` es un factor ordenado: regular es peor que bueno, que a su vez es peor que muy bueno y así sucesivamente. Muchas variables discretas no tienen un orden intrínseco como tal, de manera que puedes reordenarlas para mostrarlas de manera más informativa. Una manera de hacerlo es usar la función `reorder()` 
+
+
+
+```{r}
+#cómo varía el rendimiento en autopista según la clase del vehículo:
+ggplot(data = millas, mapping = aes(x = clase, y = autopista)) +
+  geom_boxplot()
+```
+
+Para hacer que la tendencia sea más fácil de ver, podemos reordenar la variable `clase` respecto a la mediana de la variable `autopista`:
+
+```{r fig.height = 3}
+ggplot(data = millas) +
+  geom_boxplot(mapping = aes(x = reorder(clase, autopista, FUN = median), y = autopista))
+```
+
+Si los nombres de tus variables son muy largos, `geom_boxplot()` funcionará mejor si giras el gráfico en 90°. Puedes hacer esto agregando `coord_flip()`.
+
+```{r}
+ggplot(data = millas) +
+  geom_boxplot(mapping = aes(x = reorder(clase, autopista, FUN = median), y = autopista)) +
+  coord_flip()
+```
+
+
+### Dos variables discretas
+
+Para visualizar la variación entre variables discretas, deberás contar el número de observaciones de cada combinación. Una manera de hacerlo es empleando la función integrada `geom_count()` 
+
+```{r}
+ggplot(data = diamantes) +
+  geom_count(mapping = aes(x = corte, y = color))
+```
+
+El tamaño de cada círculo en la gráfica muestra cuántas observaciones corresponden a cada combinación de valores.
+
+La covariación lucirá como una correlación fuerte entre valores específicos de x y y. 
+
+Otra estrategia es calcular el recuento con *dplyr*:
+
+```{r}
+diamantes %>% 
+  count(color, corte)
+```
+
+Después podemos visualizar con `geom_tile()` y adaptar la estética de relleno (_fill_):
+
+```{r}
+diamantes %>% 
+  count(color, corte) %>%  
+  ggplot(mapping = aes(x = color, y = corte)) +
+    geom_tile(mapping = aes(fill = n))
+```
+
+
+
+En el caso de gráficos más grandes, intenta usar los paquetes **d3heatmap** o **heatmaply**.
+
+
+### Dos variables continuas
+
+Ya viste una manera muy buena de visualizar la covariación entre dos variables continuas: dibujar un diagrama de dispersión con `geom_point()`. Puedes identificar la covariación como un patrón en los puntos. Por ejemplo, puedes observar la relación exponencial entre el quilataje y el precio de un diamante.
+
+```{r, dev = "png"}
+ggplot(data = diamantes) +
+  geom_point(mapping = aes(x = quilate, y = precio))
+```
+
+Los diagramas de dispersión resultan menos útiles a medida que rl set de datos crece, pues los puntos empiezan a superponerse y amontonarse en áreas oscuras uniformes.
+
+
+```{r, dev = "png"}
+ggplot(data = diamantes) + 
+  geom_point(mapping = aes(x = quilate, y = precio), alpha = 1 / 100)
+```
+
+Pero agregar transparencia puede ser difícil para conjuntos de datos muy grandes. Otra solución es modificar el parámetro _bin_ 
+
+. Anteriormente usaste `geom_histogram()` y `geom_freqpoly()` para segmentar una variable en rangos de manera unidimensional. 
+
+
+`geom_bin2d()` y `geom_hex()` dividen el plano cartesiano en unidades o contenedores bidimensionales y luego usan un color de relleno para mostrar cuántos puntos pueden ser clasificados en cada contenedor
+
+
+`geom_bin2d()` crea unidades rectangulares. 
+
+`geom_hex()` crea unidades hexagonales. 
+
+
+Debe estar instalado el paquete **hexbin** para usar `geom_hex()`.
+
+```{r, fig.asp = 1, out.width = "50%", fig.align = "default", message = FALSE}
+ggplot(data = pequenos) +
+  geom_bin2d(mapping = aes(x = quilate, y = precio))
+
+# install.packages("hexbin")
+ggplot(data = pequenos) +
+  geom_hex(mapping = aes(x = quilate, y = precio))
+```
+
+Otra opción es crear contenedores o intervalos con una de las variables continuas de manera de que pueda ser tratada como una variable discreta.
+
+Luego, puedes usar alguna de las técnicas de visualización empleadas para representar la combinación de una variable discreta con una variable continua. 
+
+Por ejemplo, podrías segmentar la variable `quilate` y definir unidades o intervalos, para después graficar una diagrama de cajas para cada grupo:
+
+```{r}
+ggplot(data = pequenos, mapping = aes(x = quilate, y = precio)) + 
+  geom_boxplot(mapping = aes(group = cut_width(quilate, 0.1)))
+```
+
+`cut_width(x, width)`, como se muestra en el ejemplo anterior, divide la variable `x` en intervalos de ancho `width`.
+
+Los diagramas de caja parecen muy similares por default sin importar el número de observaciones (salvo el número de valores atípicos, o _outliers_), de manera que es difícil entender que cada diagrama de caja representa un número de datos diferente.
+
+Una manera de mostrar esto es hacer que el ancho del diagrama de caja sea proporcional al número de datos contenidos en cada caja con `varwidth = TRUE`.
+
+Otra solución es mostrar aproximadamente el mismo número de datos en cada intervalo o unidad. Esto puedes lograrlo con `cut_number()`:
+
+```{r}
+ggplot(data = pequenos, mapping = aes(x = quilate, y = precio)) + 
+  geom_boxplot(mapping = aes(group = cut_number(quilate, 20)))
+```
+
+
+  
+```{r, dev = "png"}
+    ggplot(data = diamantes) +
+      geom_point(mapping = aes(x = x, y = y)) +
+      coord_cartesian(xlim = c(4, 11), ylim = c(4, 11))
+```
+    
+  
+
+## Patrones y modelos
+
+Los patrones en los datos entregan pistas acerca de las relaciones entre variables.
+
+Si existe una relación sistemática entre dos variables, esto aparecerá como un patrón en tus datos.
+
+
+Si se encuentra un patrón, hacerse las siguientes preguntas:
+
++ ¿Este patrón podría ser mera coincidencia (p. ej., producto de probabilidades aleatorias)?
+
+
++ ¿Qué tan fuerte es la relación sugerida por este patrón?
+
++ ¿Qué otras variables podrían afectar la relación?
+
++ ¿Cambia esta relación si examinas de manera individual distintos subgrupos de datos?
+
+Un diagrama de dispersión de la duración de las erupciones del géiser Viejo Fiel contra el tiempo de espera entre erupciones muestra un patrón: tiempos de espera más largos están asociados con erupciones más largas. 
+
+```{r fig.height = 2}
+ggplot(data = faithful) +
+  geom_point(mapping = aes(x = eruptions, y = waiting))
+``` 
+
+
+
+Si piensas en la variación como un fenómeno que crea incertidumbre, la covariación es un fenómeno que la reduce.
+
+Si dos variables varían de manera conjunta, puedes usar los valores de una variable para hacer mejores predicciones sobre valores de la segunda. 
+
+Si la covariación es producto de una relación causal (un caso especial), entonces puedes usar el valor de una variable para controlar el valor de la segunda. 
+
+
+
+
+```{r include=FALSE}
+library(corrplot)
+```
+
+```{r echo=FALSE}
+M <- cor(mtcars)
+corrplot.mixed(M)
+```
+
+
+
+Los modelos son una herramienta para extraer patrones de los datos. 
+
+Resulta difícil entender la relación entre corte y precio, pues corte y quilate, así como quilate y precio, están estrechamente relacionadas.
+
+Es posible usar un modelo para remover la fuerte relación entre precio y quilate de manera que podamos explorar las sutilezas que quedan en los datos.
+
+
+El código mostrado a continuación crea un modelo que predice el `precio` a partir de la variable `quilate` y después calcula los residuales (la diferencia entre la variable predecida y el valor real). Los residuales nos informan acerca del precio de un diamante, una vez que el efecto que el quilataje tiene sobre esta variable ha sido removido.
+
+
+```{r, dev = "png"}
+library(modelr)
+
+mod <- lm(log(precio) ~ log(quilate), data = diamantes)
+
+diamantes2 <- diamantes %>% 
+  add_residuals(mod) %>% 
+  mutate(resid = exp(resid))
+
+ggplot(data = diamantes2) + 
+  geom_point(mapping = aes(x = quilate, y = resid))
+```
+
+Una vez que se remueve la fuerte relación entre quilate y precio, se puede observar lo  esperado sobre la relación entre corte y precio: los diamantes de mejor calidad son más costosos según su tamaño.
+
+```{r}
+ggplot(data = diamantes2) + 
+  geom_boxplot(mapping = aes(x = corte, y = resid))
+```
+
+
+
+## Argumentos en ggplot2
+
+### Hasta ahora el código es muy explícito:
+
+```{r, eval = FALSE}
+ggplot(data = faithful, mapping = aes(x = eruptions)) +
+  geom_freqpoly(binwidth = 0.25)
+```
+
+ Los primeros dos argumentos de `ggplot()` son `data` y `mapping`,
+ y los primeros dos argumentos de `aes()` son `x` e `y`.
+
+Entonces el código para el gráfico anterior de manera más precisa resulta en:
+
+```{r, eval = FALSE}
+ggplot(faithful, aes(eruptions)) +
+  geom_freqpoly(binwidth = 0.25)
+```
+
+Algunas veces convertiremos el producto obtenido en el último paso del proceso de transformación de datos a un gráfico. Observa también la transición de `%>%` a `+`. 
+
+```{r, eval = FALSE}
+diamantes %>% 
+  count(corte, claridad) %>% 
+  ggplot(aes(claridad, corte, fill = n)) + 
+    geom_tile()
+```
