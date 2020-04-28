@@ -15,5 +15,8 @@
 ## [Modelo de examen](https://education.rstudio.com/blog/2020/02/instructor-certification-exams/)
 
 ### Material Complementario
-* [Visualization with ggplot2]
+* [Drawing anything with ggplot2](https://github.com/thomasp85/ggplot2_workshop) 
+* [Video Part 1](https://www.youtube.com/watch?v=h29g21z0a68)
+* [Video Part 2](https://www.youtube.com/watch?v=0m4yywqNPVY)
+
 
