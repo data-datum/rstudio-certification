@@ -10,7 +10,10 @@
 * [Chapter 15. Factors](https://github.com/data-datum/rstudio-certification/blob/master/15_factores_LRP.Rmd)
 * [Chapter 16. Dates and times](https://github.com/data-datum/rstudio-certification/blob/master/fechasyhoras.Rmd)
 
+## [Ejercicios resueltos del libro](https://jrnold.github.io/r4ds-exercise-solutions/index.html)
 
-## Modelo de examen (https://education.rstudio.com/blog/2020/02/instructor-certification-exams/)
+## [Modelo de examen](https://education.rstudio.com/blog/2020/02/instructor-certification-exams/)
 
-## Ejercicios resueltos del libro (https://jrnold.github.io/r4ds-exercise-solutions/index.html)
+### Material Complementario
+* [Visualization with ggplot2]
+
