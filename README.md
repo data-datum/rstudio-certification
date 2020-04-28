@@ -11,6 +11,6 @@
 * [Chapter 16. Dates and times](https://github.com/data-datum/rstudio-certification/blob/master/fechasyhoras.Rmd)
 
 
-## Modelo de examen(https://education.rstudio.com/blog/2020/02/instructor-certification-exams/)
+## Modelo de examen (https://education.rstudio.com/blog/2020/02/instructor-certification-exams/)
 
-## Ejercicios resueltos del libro(https://jrnold.github.io/r4ds-exercise-solutions/index.html)
+## Ejercicios resueltos del libro (https://jrnold.github.io/r4ds-exercise-solutions/index.html)
