@@ -1,0 +1,358 @@
+---
+title: "Fechas y horas"
+output:
+  html_document:
+    theme:  journal
+    highlight: zenburn
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_section: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introducción
+
+Trabajar con fechas y horas parece más fácil de lo que es en realidad ya que hay que lidiar con dos fenómenos:
+
+- Físicos: rotación de la tierra y su órbita alrededor del sol
+- Geopolíticos: meses, usos horarios, horarios de verano.
+
+El capítulo presenta el paquete `lubridate`el cual no es parte de los paquetes de `tidyverse`ya que se considera un tema específico:
+
+```{r, warning=F, message=F}
+library(tidyverse)
+library(lubridate)
+library(datos)
+```
+
+
+## Creando fechas y horas
+
+Hay tres tipos de datos de fecha que se refieren a instantes del tiempo diferentes:
+
+- Una fecha o **date**. Un tibble lo imprime como `<date>`.
+
+- Una hora o **time** dentro de un día. Los tibbles lo imprimen como `<time>`.
+
+- Una fecha-hora o **date-time** es una fecha con una hora adjunta: Los tibbles imprimen esto como `<dttm>`. En otras partes de R se les llama POSIXct, pero no es un nombre muy útil.
+
+En el capítulo se trata sólo con fechas y fechas-hora ya que R no tiene una clase nativa para almacenar horas, se recomienda para esto el paquete **hms**.
+
+```{r}
+today()
+now()
+```
+
+Se recomienda también siempre usar el tipo más sencillo de datos (fecha) según lo que tus datos requieran, ya que date-time implica trabajar con usos horarios.
+
+Hay tres modos en los que se puede crear una fecha/hora
+
+### Desde una cadena de caracteres
+Se utilizan las funciones con los componentes `y, m, d` del paquete **lubridate**
+
+Para fechas:
+
+```{r}
+ymd("2000-02-28")
+mdy("02-28-2000")
+```
+Para fecha-hora:
+
+```{r}
+# fecha con hora:miniuto:segundo
+ymd_hms("2017-01-31 20:11:59")
+# fecha con hora:minuto
+mdy_hm("01/31/2017 08:01")
+# fecha con uso horario
+str(ymd(20170131, tz = "UTC"))
+```
+
+### Desde componentes de fecha-hora individuales.
+
+```{r}
+vuelos %>%
+  select(anio, mes, dia, hora, minuto)
+```
+
+Se utilizan las funciones `make_date()` y `make_datetime()`
+
+```{r}
+vuelos %>%
+  select(anio, mes, dia, hora, minuto, salida_programada) %>% 
+  mutate(salida = make_datetime(year = anio, month = mes, day = dia, hour = hora, min = minuto),
+         sp = make_datetime(anio, mes, dia, salida_programada %/% 100, salida_programada %% 100))
+
+hacer_fechahora_100 <- function(anio, mes, dia, tiempo){
+  make_datetime(anio, mes, dia, tiempo %/% 100, tiempo %% 100)
+}
+
+
+vuelos_dt <- vuelos %>%
+  filter(!is.na(horario_salida), !is.na(horario_llegada)) %>%
+  mutate(
+    horario_salida = hacer_fechahora_100(anio, mes, dia, horario_salida),
+    horario_llegada = hacer_fechahora_100(anio, mes, dia, horario_llegada),
+    salida_programada = hacer_fechahora_100(anio, mes, dia, salida_programada),
+    llegada_programada = hacer_fechahora_100(anio, mes, dia, llegada_programada)
+  ) %>%
+  select(origen, destino, starts_with("atraso"), starts_with("horario"), ends_with("programada"), tiempo_vuelo)
+  
+
+```
+
+```{r}
+vuelos_dt %>%
+  ggplot(aes(horario_salida)) +
+  geom_freqpoly(binwidth = 86400) # 86400 segundos = 1 día
+
+vuelos_dt %>%
+  filter(horario_salida < ymd(20130105)) %>%
+  ggplot(aes(horario_salida)) +
+  geom_freqpoly(binwidth = 600) # 600 segundos = 10 minutos
+```
+
+
+### Desde un objeto fecha-hora existente
+
+
+Usando `as_date()` o `as_datetime()`
+
+```{r}
+vuelos_dt %>%
+  filter(as_date(horario_salida) == ymd(20130105)) %>%
+  ggplot(aes(horario_salida)) +
+  geom_freqpoly(binwidth = 600) # 600 segundos = 10 minutos
+```
+
+Ejercicios
+
+```{r}
+d1 <- "Enero 1, 2010"
+mdy(d1)
+d2 <- "2015-Mar-07"
+ymd(d2)
+d3 <- "06-Jun-2017"
+dmy(d3)
+d4 <- c("Agosto 19 (2015)", "Julio 1 (2015)")
+mdy(d4)
+d5 <- "12/30/14" # Diciembre 30, 2014
+mdy(d5)
+
+```
+
+
+
+
+## Componentes de fecha-hora
+Se puede acceder a los componentes de una fecha-hora con las siguientes funciones:
+- year() (año)
+- month() (mes)
+- mday() (día del mes)
+- yday() (día del año)
+- wday() (día de la semana)
+- hour() (hora)
+- minute() (minuto)
+- second() (segundo)
+
+```{r}
+fechahora <- ymd_hms("2020-04-27 18:24:34")
+year(fechahora)
+month(fechahora)
+day(fechahora)
+hour(fechahora)
+minute(fechahora)
+second(fechahora)
+yday(fechahora)
+wday(fechahora, label = T, abbr = F)
+```
+
+Podemos usar `wday()` para ver que son más los vuelos que salen durante la semana que durante el fin de semana:
+
+```{r}
+vuelos_dt %>%
+  mutate(dia_semana = wday(horario_salida, label = TRUE, abbr = F, locale = "French")) %>%
+  ggplot(aes(x = dia_semana)) +
+  geom_bar()
+```
+
+Uso con la función summarise:
+
+```{r}
+vuelos_dt %>%
+  mutate(minuto = minute(horario_salida)) %>%
+  group_by(minuto) %>%
+  summarise(
+    atraso_promedio = mean(atraso_llegada, na.rm = TRUE),
+    n = n()
+  ) %>%
+  ggplot(aes(minuto, atraso_promedio)) +
+  geom_line()
+```
+
+Redondeo de fechas:
+
+```{r}
+fechahora2 <- ymd_hms("2020-04-27 22:25:47")
+floor_date(fechahora2, unit = "hour")
+round_date(fechahora2, unit = "hour")
+ceiling_date(fechahora2, unit = "hour")
+```
+
+
+## Lapsos de tiempo
+
+¿Cómo funciona la aritmética con las fechas?
+
+Hay que tener claro lo siguiente:
+
+- **durations** (duraciones), representa un número exacto de segundos
+- **periods** (períodos), representan unidades humanas como semanas o meses
+- **intervals** (intervalos),representan un punto de inicio y uno de finalización
+
+### Duraciones
+
+Cuando se restan dos fechas, se obtiene un objeto de tipo `difftime`
+
+```{r}
+## ¿Qué edad tengo?
+
+edad <- today() - dmy(01121990)
+edad
+as.duration(edad)
+```
+
+Se pueden construir duraciones con las funciones **d** (notar también el plural):
+
+```{r}
+dseconds(15)
+dminutes(10)
+dhours(c(12, 24))
+ddays(0:5)
+dweeks(3)
+dyears(1)
+
+```
+
+Se pueden hacer diferentes operaciones con los periodos:
+
+```{r}
+today() - dyears(1)
+now() + dhours(12)*3
+```
+
+¿Y qué ocurre con los cambios de horario?
+```{r}
+# Cambios de hora
+cambio <- ymd_hms("2020-04-04 02:00:00", tz = "Chile/Continental")
+cambio
+cambio + ddays(1)
+```
+
+### Periodos
+
+**lubridate** provee plazos de tiempo "humanos" los cuales no tienen duración en segundos. Al igual que las duraciones, se crean mediante las siguientes funciones (sin la **d**):
+
+```{r}
+seconds(15)
+minutes(10)
+hours(c(12, 24))
+days(7)
+months(1:6)
+weeks(3)
+years(1)
+```
+
+También se puede hacer aritmética con los periodos:
+
+```{r}
+today() + months(3)
+
+months(6) + years(5)
+
+(months(3)*4) + years(2)
+
+cambio + days(1)
+```
+
+### Intervalos
+
+Los intervalos aceptan el cálculo con clases del mismo tipo: periodos v/s periodos y duraciones v/s duraciones:
+
+Los intervalos se contabilizan en segundos, por lo que a veces no se obtiene lo que deseamos:
+
+```{r, error= T}
+years(1) / days(1)
+years(1) %/% days(1)
+ddays(14) / ddays(7)
+years(1) / ddays(365)
+
+```
+Existe una clase específica en **lubridate** para los intervalos, las clase 'interval', la cual puede hacerse mediante la función `interval()` o con el comando `%--%`.
+
+### Ejercicios
+
+
+** Crea un vector de fechas dando el primer día de cada mes de 2015. Crea un vector de fechas dando el primer día de cada mes del año actual.**
+
+```{r}
+ymd("2015-01-01") + months(0:11)
+ymd("2020-01-01") + months(0:11)
+
+## Hacerlo más "programado"?
+floor_date(today(), unit = "year") + month(0:11)
+
+```
+
+
+** Crea una función en la que, dado tu cumpleaños (como una fecha), retorne qué edad tienes en años.**
+
+```{r}
+edad <- function(fecha_cumple){
+  fecha_cumple %--% today() %/% dyears(1)
+}
+
+edad(ymd(19901201))
+
+
+```
+
+** ¿Por qué no funciona (today() %--% (today() + years(1)) / months(1) ?**
+- Porque falta un paréntisis -_-
+
+## Usos horarios
+
+Para lidiar con los usos horarios debemos ser conscientes, en primer lugar, de si nuestros datos requieren un tratamiento especial, porque de lo contrario, estaríamos haciendo más trabajo del debido.
+
+Los usos horarios están generalmente expresados según el continente/ciudad de ubicación, y existe una extensa lista de ellos que se puede consultar con la función `OlsonNames()` del paquete base.
+
+**lubridate** siempre utiliza UTC (Tiempo Universal Coordinado) a no ser que se haya especificado otra cosa.
+
+El uso horario es un elemento que sólo afecta a la impresión:
+
+```{r}
+(x1 <- ymd_hms("2015-06-01 12:00:00", tz = "America/New_York"))
+(x2 <- ymd_hms("2015-06-01 18:00:00", tz = "Europe/Copenhagen"))
+(x3 <- ymd_hms("2015-06-02 04:00:00", tz = "Pacific/Auckland"))
+
+x1 - x2
+x2 - x3
+x1 - x3
+```
+Para cambiar los husos horarios
+
+```{r}
+## Para cargar el uso horario "de impresión"
+x4 <- c(x1, x2, x3)
+
+with_tz(x4, tzone = "UTC")
+
+
+## Cuando se han etiquetado con un uso horario incorrecto:
+force_tz(x4, tzone = "Australia/Lord_Howe")
+```
+
+
