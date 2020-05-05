@@ -21,5 +21,5 @@
 [Video Part 1](https://www.youtube.com/watch?v=h29g21z0a68)
 [Video Part 2](https://www.youtube.com/watch?v=0m4yywqNPVY)
 * [Going deeper with R](https://rfortherestofus.com/live/)
-
+* [Writing Functions - Jenny Bryan](https://stat545.com/functions-part1.html)
 
