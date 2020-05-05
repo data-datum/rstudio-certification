@@ -12,6 +12,8 @@
 
 ## [Ejercicios resueltos del libro](https://jrnold.github.io/r4ds-exercise-solutions/index.html)
 
+## [Libro de Greg Wilson](https://teachtogether.tech/)
+
 ## [Modelo de examen](https://education.rstudio.com/blog/2020/02/instructor-certification-exams/)
 
 ### Material Complementario
