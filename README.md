@@ -9,6 +9,8 @@
 * [Chapter 14. Strings](https://rstudio.cloud/project/1177886)
 * [Chapter 15. Factors](https://github.com/data-datum/rstudio-certification/blob/master/15_factores_LRP.Rmd)
 * [Chapter 16. Dates and times](https://github.com/data-datum/rstudio-certification/blob/master/fechasyhoras.Rmd)
+* [Chapter 19. Functions]
+* [Chapter 20. Vectors] (https://rstudio.cloud/project/1199288)
 
 ## [Ejercicios resueltos del libro](https://jrnold.github.io/r4ds-exercise-solutions/index.html)
 
