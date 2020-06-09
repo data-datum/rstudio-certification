@@ -11,6 +11,10 @@
 * [Chapter 16. Dates and times](https://github.com/data-datum/rstudio-certification/blob/master/fechasyhoras.Rmd)
 * [Chapter 19. Functions](https://github.com/data-datum/rstudio-certification/blob/master/index.pdf)
 * [Chapter 20. Vectors](https://rstudio.cloud/project/1199288)
+* [Chapter 23. Models](https://data-datum.github.io/models/models/23-pres.html#1)
+* [Chapter 24. Models](https://data-datum.github.io/models/models/24-pres.html#1)
+
+
 
 ## [Ejercicios resueltos del libro](https://jrnold.github.io/r4ds-exercise-solutions/index.html)
 
