@@ -156,4 +156,8 @@ ggplot(data = diamantes) +
 ggplot(diamantes)+
   stat_count(mapping=aes(x=corte))
 
+
+#transformaciones estadisticas
+
+  
   
