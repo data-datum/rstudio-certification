@@ -39,7 +39,8 @@ vuelos %>%
 # e. Llegaron más de dos horas tarde, pero no salieron tarde
 
 vuelos %>%
-  filter(atraso_llegada > 120  | atraso_salida < 0)
+  filter(atraso_llegada > 120  | atraso_salida <= 0)
+#importante aca incluir el valor 0 tambien, los que salieron a tiempo
 
 # f. Se retrasaron por lo menos una hora, pero repusieron más de 30 minutos en vuelo
 
@@ -51,7 +52,13 @@ vuelos %>%
 vuelos %>%
   filter(between(horario_salida, 0, 600))
 
-# 2. uso de between para simplificar
+#importante
+#las 0 horas en el dataset esta mencionado como 2400, se puede ver en este codigo
+summary(vuelos$horario_salida)
+vuelos %>%
+  filter(horario_llegada <= 600 | horario_salida == 2400)
+
+  # 2. uso de between para simplificar
 # se pueden simplificar el punto g y el d
 
 vuelos %>% 
@@ -66,7 +73,46 @@ vuelos %>%
   count()
 
 # ¿Qué otras variables tienen valores faltantes? 
-vuelos %>%
-  filter(is.na(across()))
+summary(vuelos)
 
-#     
+# ARRANGE
+
+# poner los valores faltantes al inicio
+#para ello tenemos saber que columna tiene valores faltantes
+#hacemos un summary() previo
+vuelos %>%
+  arrange(desc(is.na(horario_salida)), horario_salida)
+
+# encontrar los vuelos mas retrasados
+
+vuelos %>%
+  arrange(desc(atraso_llegada)) 
+
+#encuentra los vuelos que salieron mas temprano
+
+vuelos %>%
+  arrange(atraso_salida)
+
+# vuelos más rapidos
+
+vuelos %>%
+  arrange(tiempo_vuelo)
+
+#si pensamos en la velocidad
+
+vuelos %>%
+  arrange(desc(distancia/tiempo_vuelo))
+
+# ¿Cuáles vuelos viajaron más lejos?
+
+vuelos %>%
+  arrange(desc(distancia))
+
+# ¿Cuál viajó más cerca?
+vuelos %>%
+  arrange(distancia)
+
+
+  
+
+
