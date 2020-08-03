@@ -112,7 +112,80 @@ vuelos %>%
 vuelos %>%
   arrange(distancia)
 
+#SELECT
 
-  
+#seleccionar por nombres de columnas
 
+vuelos %>%
+  select(anio, mes, dia)
+# lo mismo de otra forma
+vuelos %>%
+  select(anio:dia)
+#eliminar columnas con signo menos
+vuelos %>%
+  select(-(anio:dia))
+
+#si quiero una columna particular que aparezca primero
+vuelos %>%
+  select(atraso_salida, everything())
+
+#ejercicios de select
+
+# 1. Haz una lluvia de ideas sobre tantas maneras como sea posible para 
+# seleccionar horario_salida,atraso_salida,horario_llegada, yatraso_llegada de vuelos.
+#opcion 1: definiendo las variables explicitamente
+vuelos %>%
+  select(horario_salida, atraso_salida, horario_llegada, atraso_llegada)
+#opcion 2: definir mediante un vector
+variables<-c("horario_salida", "atraso_salida", "horario_llegada", "atraso_llegada")
+vuelos %>%
+  select(variables)
+#opcion 3: mediante un patron con el cual empiezan los nombres
+vuelos %>%
+  select(starts_with("horario"), starts_with("atraso"))
+#opcion 4: mediante un patron con el cual termina el nombre
+vuelos %>%
+  select(ends_with("salida"), ends_with("llegada"))
+#opcion 5: mediante un patron que contiene esas palabras
+vuelos %>%
+  select(contains("salida"), contains("llegada"))
+#opcion 6: se puede indexar por el numero de la columna
+vuelos %>%
+  select(4, 6, 7, 9)
+#opcion 7: las columnas se pueden especificar mediante strings
+vuelos %>%
+  select("horario_salida", "atraso_salida", "horario_llegada", "atraso_llegada")
+#opcion 8: con any_of o all_of
+vuelos %>%
+  select(any_of(c("horario_salida", "atraso_salida", "horario_llegada", "atraso_llegada")))
+vuelos %>%
+  select(all_of(c("horario_salida", "atraso_salida", "horario_llegada", "atraso_llegada")))
+#opcion 9: si especifico las variables como strings
+variabl<-c("horario_salida", "atraso_salida", "horario_llegada", "atraso_llegada")
+vuelos %>%
+  select(!!variabl)
+#opcion 10: con la funcion matches()
+vuelos %>%
+  select(matches("^(horario|atraso)_(salida|llegada)$"))
+
+# ¿Qué sucede si incluyes el nombre de una variable varias veces en una llamada a select()?
+
+vuelos %>%
+  select(dia, dia)
+# el resultado no duplica la columna
+
+# ¿Qué hace la función one_of()? ¡¿Por qué podría ser útil en conjunto con este vector?
+
+vars <- c ("anio", "mes", "dia", "atraso_salida", "atraso_llegada")
+
+vuelos %>%
+  select(one_of(c(vars)))
+
+#selecciona todas esas columnas
+
+# ¿Te sorprende el resultado de ejecutar el siguiente código? 
+# ¿Cómo tratan por defecto las funciones auxiliares de select() a las palabras en mayúsculas o en minúsculas? 
+# ¿Cómo puedes cambiar ese comportamiento predeterminado?
+vuelos %>%
+  select(contains("SALIDA"))
 
