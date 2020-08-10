@@ -165,7 +165,7 @@ pinera <- str_replace_all(pinera, "\n[:blank:]+[:digit:]+", " ")
 
 # Eliminamos espacios extras:
 pinera <- str_replace_all(pinera, "[:blank:]{2,}", " ")
-
+      
 
 # ¡Listo! Ahora guardamos nuestro archivo como txt.
 write_lines(pinera, "pinera2018.txt")
