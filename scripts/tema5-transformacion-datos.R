@@ -189,3 +189,88 @@ vuelos %>%
 vuelos %>%
   select(contains("SALIDA"))
 
+#MUTATE
+library(tidyverse)
+library(datos)
+vuelos_sml<-select(vuelos, 
+                   anio:dia, 
+                   starts_with("atraso"),
+                   distancia, 
+                   tiempo_vuelo
+                   )
+vuelos_sml %>%
+  mutate(ganancia = atraso_salida - atraso_llegada, 
+         velocidad= distancia/tiempo_vuelo*60)
+
+vuelos %>%
+  transmute(ganancia=atraso_salida-atraso_llegada,
+            horas=tiempo_vuelo/60, 
+            ganancia_por_hora=ganancia/horas)
+
+#EJERCICIOS MUTATE
+# 2. Compara tiempo_vuelo con horario_llegada - horario_salida. 
+# ¿Qué esperas ver? ¿Qué ves? ¿Qué necesitas hacer para arreglarlo?
+
+vuelos %>%
+  mutate(tiempo_vuelo_real=horario_llegada - horario_salida) %>%
+  select(tiempo_vuelo_real, tiempo_vuelo, horario_llegada, horario_salida, everything())
+
+# es necesario sobreescribir la columna tiempo_vuelo
+
+# 3. Compara horario_salida, salida_programada, y atraso_salida. 
+# ¿Cómo esperarías que esos tres números estén relacionados?
+
+vuelos %>%
+  select(horario_salida, salida_programada, atraso_salida)
+
+# atraso_salida es la resta de horario salida - salida_programada
+
+# 4. Encuentra los 10 vuelos más retrasados utilizando una función de ordenamiento. 
+# ¿Cómo quieres manejar los empates? Lee atentamente la documentación de min_rank().
+
+
+vuelos %>%
+  select(atraso_salida, atraso_llegada, everything())%>%
+  arrange(desc(atraso_salida))%>%
+  head(10) #los 10 primeros
+
+#este codigo NO es correcto
+vuelos %>%
+  select(atraso_salida, atraso_llegada, everything())%>%
+  arrange(desc(atraso_salida))%>%
+  slice_max(10)
+
+
+#group_by() y summarise()
+library(datos)
+library(tidyverse)
+vuelos %>%
+  summarise(atraso=mean(atraso_salida, na.rm=TRUE))
+  
+
+
+------------------------------------------------------------------------------------------
+----------------#ejercicio random--------------------------------------------------------
+
+
+g <- mtcars %>%
+  group_by(cyl)
+g
+
+g %>%
+  summarise(
+    disp=mean(disp),
+    sd=sd(disp)
+  )
+    
+g%>%
+  summarise(
+    data.frame(
+      disp=mean(disp),
+      sd=sd(disp)
+    )
+  )
+
+
+
+  
