@@ -60,7 +60,7 @@ ggplot(data = penguins.csv) +
   labs(x="especie", y="longitud del pico")+ #longitud del pico 
   facet_grid(~sex)
 
-
+#para ver datos perdidos
 library(naniar)
 penguins.csv %>%
   select(sex, bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g) %>%
@@ -68,7 +68,6 @@ penguins.csv %>%
 
 
 
-  
 
 
 
