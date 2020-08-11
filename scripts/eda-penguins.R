@@ -1,5 +1,11 @@
 #palmer penguins
+
+#para limpiar datos
+#datos crudos
+penguins_raw.csv <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-28/penguins_raw.csv')
+
 library(tidyverse)
+#clean data
 penguins.csv <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-28/penguins.csv')
 
 glimpse(penguins.csv)
@@ -66,8 +72,69 @@ penguins.csv %>%
   select(sex, bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g) %>%
   gg_miss_upset()
 
+#para ver las distribuciones de todas las variables
+#distribucion en general
+penguins.csv %>%
+  pivot_longer(cols=bill_length_mm:body_mass_g,
+               names_to="metric",
+               values_to="value") %>%
+  ggplot(aes(value))+
+  geom_histogram(bins=20)+
+  facet_wrap(~metric, scales="free_x")
+
+#distribucion segun especie
+penguins_pivoted <- penguins.csv %>%
+  pivot_longer(cols=bill_length_mm:body_mass_g,
+               names_to="metric",
+               values_to="value") 
+penguins_pivoted %>%
+  ggplot(aes(value, fill=species))+
+  geom_histogram(bins=20)+
+  facet_wrap(~metric, scales="free_x")
 
 
+penguins_pivoted %>%
+  ggplot(aes(value, fill=species))+
+  geom_density(alpha=0.5)+
+  facet_wrap(~metric, scales="free")
 
 
+penguins_pivoted %>%
+  ggplot(aes(species, value))+
+  geom_boxplot()+
+  facet_wrap(~metric, scales="free_y")
+
+
+penguins.csv %>%
+  ggplot(aes(year, fill=species))+
+  geom_bar()
+
+penguins.csv %>%
+  ggplot(aes(island, fill=species))+
+  geom_bar()
+
+#analisis de correlacion
+#fuente
+library(corrr)
+
+penguins.csv %>%
+  select(bill_length_mm:body_mass_g) %>%
+  correlate() %>%
+  rearrange() %>%
+  shave() %>%
+  rplot(shape = 20, colours = c("indianred2", "white", "skyblue1"))
+
+#para usar esta libreria NO DEBE HABER VALORES PERDIDOS, SINO DA ERROR. 
+
+library(corrplot) #librería corrrplot para graficar
+penguins<-penguins.csv %>% #ingreso de datos
+  select(bill_length_mm:body_mass_g)%>%
+  na.omit()
+
+M <- cor(penguins) #calculo matriz de correlación 
+corrplot(M, method="number") #grafico
+
+
+#imputacion de valores
+  
 
