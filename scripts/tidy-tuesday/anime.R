@@ -1,6 +1,7 @@
 #ANIME DATASET
 tidy_anime <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-23/tidy_anime.csv")
-
+library(tidyverse)
+library(ggdark)
 glimpse(tidy_anime)
 
 str(tidy_anime)
@@ -32,13 +33,27 @@ tidy_anime %>%
   geom_bar()+
   coord_flip()
 #genero
+
+tidy_anime %>%
+  
+
+
 tidy_anime %>%
   mutate(genre = genre %>% fct_infreq() %>% fct_rev()) %>%
   ggplot(aes(genre, fill=genre)) +
-  geom_bar()+
-  coord_flip()
+  geom_bar(show.legend = F)+
+  coord_flip()+
+  labs(title = 'Género de anime\n', x='',y='',fill= ' ',
+         caption = "Fuente: TidyTuesday")+
+  dark_theme_gray()
+
+ggsave(here("anime-genero.png"), height = 8, width = 10, units = "in", type='cairo')
+  
+
+
 #rating
 tidy_anime %>%
+  
   count(rating)
 #grafico
 tidy_anime %>%
@@ -48,3 +63,16 @@ tidy_anime %>%
   coord_flip()
 
 
+tidy_anime %>%
+  ggplot(aes(x=status))+
+  geom_bar()+
+  dark_theme_gray(base_family = "Fira Sans Condensed Light", base_size = 14) + 
+  theme(plot.title = element_text(family = "Fira Sans Condensed"),
+        plot.background = element_rect(fill = "grey10"),
+        panel.background = element_blank(),
+        panel.grid.major = element_line(color = "grey30", size = 0.2),
+        panel.grid.minor = element_line(color = "grey30", size = 0.2),
+        legend.background = element_blank(),
+        axis.ticks = element_blank(),
+        legend.key = element_blank(),
+        legend.position = c(0.815, 0.27))
