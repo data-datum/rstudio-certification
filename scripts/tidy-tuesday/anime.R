@@ -35,7 +35,7 @@ tidy_anime %>%
 #genero
 
 tidy_anime %>%
-  
+    
 
 
 tidy_anime %>%
