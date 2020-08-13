@@ -11,7 +11,7 @@ penguins.csv <- readr::read_csv('https://raw.githubusercontent.com/rfordatascien
 glimpse(penguins.csv)
 is.na(penguins.csv) #verificar si hay valores perdidos
 penguins.csv[!complete.cases(penguins.csv),] 
-#para saber si hay datos perdidos en tidyverse
+#para saber si hay da tos perdidos en tidyverse
 library(skimr)
 skimr::skim(penguins.csv) 
 #esta funcion tira valores globale
