@@ -64,4 +64,15 @@ polls%>%
     geom="text", x=2014, y=43, label="Internet Era",
     color="yellow"
   )
-  
+
+
+
+library(here)
+ggsave(here("hip-hop-songs.png"), height = 8, width = 10)
+
+
+#para saber NAs en un dataset escribo un loop con purrr y map_df()
+polls %>%
+  purrr::map_df(~sum(is.na(.)))
+
+
