@@ -36,3 +36,32 @@ coffee_ratings %>%
   theme(axis.title.x=element_text(size=14), axis.title.y=element_text(size=14),
         plot.title=element_text(size=24), panel.grid.major=element_blank())
 
+#producción mundial de café
+coffee_ratings %>%
+  count(country_of_origin, species, sort=TRUE)%>%
+  filter(!is.na(country_of_origin))%>%
+  mutate(country_of_origin=fct_reorder(country_of_origin, n))%>%
+  ggplot(aes(x=n, y=country_of_origin, fill=species))+
+  geom_col()+
+  labs(title="Producción mundial de café",
+       subtitle="tidytuesday 07-07-2020",
+       y="País de origen",
+       x="#")
+
+#no olvidar, fct_reorder() tiene 2 argumentos, la variable a ordenar, y el criterio. 
+
+
+coffee_ratings %>%
+  filter(!is.na(processing_method))%>%
+  filter(!is.na(country_of_origin))%>%
+  count(country_of_origin, processing_method, sort=TRUE)%>%
+  mutate(country_of_origin=fct_reorder(country_of_origin, n, sum))%>%
+  ggplot(aes(x=n, y=country_of_origin, fill=processing_method))+
+  geom_col()+
+  labs(title="Procesamiento del café según países",
+       subtitle="tidytuesday 07-07-2020",
+       y="País de origen",
+       x="#")
+  
+
+

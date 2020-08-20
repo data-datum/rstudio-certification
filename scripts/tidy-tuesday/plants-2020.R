@@ -80,7 +80,7 @@ by_continent_threat %>%
 #fct_reorder se utiliza en mutate(), no en ggplot()
 #libreria tidytext tiene la function reorder_within()
 #scales=free en el facetado permite una mejor visualizacion
-#
+
 
 
 
