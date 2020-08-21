@@ -48,7 +48,7 @@ tidy_anime %>%
   dark_theme_gray()
 
 ggsave(here("anime-genero.png"), height = 8, width = 10, units = "in", type='cairo')
-  
+
 
 
 #rating

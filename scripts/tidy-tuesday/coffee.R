@@ -64,4 +64,9 @@ coffee_ratings %>%
        x="#")
   
 
+#no olvidar de agregar un 3 argumento en fct_reorder(), para que se acomoden las barras.
 
+coffee_ratings %>%
+  count(variety, sort=TRUE)%>%
+  filter(!is.na(variety))%>%
+  
