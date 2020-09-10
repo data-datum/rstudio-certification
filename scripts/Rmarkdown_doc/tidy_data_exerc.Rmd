@@ -1,0 +1,32 @@
+---
+title: "tidy_data_exercises"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tidy data exercises
+
+1. Usando prosa, describe cómo las variables y observaciones se organizan en las tablas de ejemplo.
+
+2. Calcula la tasa para las tablas tabla2 y tabla4a + tabla4b. Necesitarás las siguientes operaciones:
+3. Extraer el número de casos de tuberculosis por país y año.
+4. Extraer la población por país y año.
+5. Dividir los casos por la población y multiplicarla por 10000.
+
+6. Insertar los datos de vuelta en el lugar adecuado.
+
+¿Cuál representación es más fácil de trabajar? ¿Cuál es la más difícil? ¿Por qué?
+
+7. Recrea el gráfico que muestra el cambio en el número de casos usando la tabla2 en lugar de la tabla1. ¿Qué necesitas hacer en primero?
+
+
+```{r}
+library(datos)
+tabla2
+```
+
+
+

@@ -35,6 +35,23 @@ health%>%
   filter(`age 15-17`==100 | `age 20-34` == 100)
 
 
+#5 
+hiv<-read_csv("scripts/data/infant_hiv.csv")
+tidy_hiv <- function(hiv){
+  
+}
+
+#tidying hiv
+hiv_tidy <- hiv %>%
+  pivot_longer(cols=`2009 est`:`2017 lo`,
+               names_to="year",
+               values_to="value"
+               ) %>%
+  na_if("-")%>%
+  na_if(">95%")
+               
+
+
 #ejercicio propuesto por riva
 #de reproducir un boxplot
 #datos
