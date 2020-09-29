@@ -20,7 +20,12 @@
 
 ## [Libro de Greg Wilson](https://teachtogether.tech/)
 
-## [Modelo de examen](https://education.rstudio.com/blog/2020/02/instructor-certification-exams/)
+## [Modelo de examen 1](https://education.rstudio.com/blog/2020/02/instructor-certification-exams/)
+### [Resolución examen de tidyverse](https://marlycormar.github.io/tidyverse_sample_exam/sample_exam_sols/sols.html#Instructions)
+
+## [Model de examen 2](https://education.rstudio.com/blog/2020/08/more-example-exams/)
+### [Resolución del examen tidyverse](https://tidyverse-exam-v2-solutions.netlify.app/)
+
 
 ### Material Complementario
 * [Drawing anything with ggplot2](https://github.com/thomasp85/ggplot2_workshop) 
