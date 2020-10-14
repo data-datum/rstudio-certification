@@ -1,5 +1,5 @@
 #more exams
-#basic operations
+#1. basic operations----------------------------------------------------------
 
 library(tidyverse)
 #1
@@ -14,7 +14,7 @@ person2 %>%
 person %>%
   arrange(-str_length(family_name))
 
-#cleaning and counting
+#2. cleaning and counting---------------------------------------------------
 #1
 measurements <-read_csv("scripts/data/measurements.csv")
 measurements_cleaned <-measurements %>%
@@ -43,7 +43,7 @@ measurements_cleaned %>%
     TRUE ~ as.double(reading)))
 
 cleaned<-measurements_cleaned
-#combining data
+#3. combining data----------------------------------------------------------
 library(tidyr)
 visited<-read_csv("scripts/data/visited.csv")%>%
   drop_na()
@@ -61,7 +61,7 @@ joined %>%
   filter(quantity=="rad")%>%
   slice_max(reading)
 
-#plotting
+#4. plotting-----------------------------------------
 hra_raw <- read_csv(here::here("data", "home-range-database.csv"))
 
 library(here)
@@ -69,10 +69,7 @@ hra_raw <-read_csv("scripts/data/home-range-database.csv")
 
 #2.
 hra <- hra_raw %>%
-  mutate(class_fct = as_factor(
-    class,
-    levels = c("mammalia", "reptilia", "aves", "actinopterygii")
-  ))
+  mutate(class_fct = factor(class, levels = c("mammalia", "reptilia", "aves", "actinopterygii")))
 
 glimpse(hra)
 
@@ -81,5 +78,49 @@ hra_raw %>%
 
 #3. 
 hra %>%
-  ggplot(aes(x=log10.mass, y=log10.hra, fill=class_fct))+
+  ggplot(aes(x=log10.mass, y=log10.hra))+
   geom_point()
+
+
+#4
+hra %>%
+  ggplot(aes(x=log10.mass, y=log10.hra, colour=class_fct))+
+  geom_point()
+
+#5
+
+hra %>%
+  filter(class_fct == "aves")%>%
+  ggplot(aes(x=log10.mass, y=log10.hra))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+
+#5.  Functions -----------------------------------------
+
+summarize_table <- function (title, tibble){
+  num_rows <- nrow(tibble) 
+  num_cols <- ncol(tibble)
+  
+  result <- str_c(title,"has", num_rows, 
+                  "rows and", num_cols, "columns", sep = " ")
+  print(result)
+}
+
+summarize_table("iris", iris)
+
+
+
+
+
+# PROBANDO FUNCIONES------------
+mean_ci <- function(x, conf = 0.95) {
+  se <- sd(x) / sqrt(length(x))
+  alpha <- 1 - conf
+  mean(x) + se * qnorm(c(alpha / 2, 1 - alpha / 2))
+}
+
+set.seed(123)
+x <- runif(100)
+mean_ci(x)
+

@@ -1,0 +1,326 @@
+---
+title: "Primers-ggplot2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Primers ggplot2
+
+```{r}
+library(tidyverse)
+```
+
+
+
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut))
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut))
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut), width = 1)
+```
+
+```{r}
+ggplot(data=mpg)+ geom_bar(aes(x=fct_infreq(class), fill=class, alpha=0.5))
+```
+
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+
+```{r}
+#para ver en forma de histograma
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+```
+
+```{r}
+#stacked bars
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "stack")
+```
+
+```{r}
+#barras apiladas
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+```
+
+
+
+```{r}
+geom_bar(mapping = aes(x = cut, fill = clarity), position = "identity")
+```
+
+## Ejercicio 6 (recrear el grafico)
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = color, fill = clarity), position = "fill", width=1)
+```
+
+
+## Ejercicio 7 (recrear el grafico)
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = color, fill = cut), position = "dodge")
+```
+
+# facet_grid()
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = color)) +
+  facet_grid(clarity ~ cut)
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = color)) +
+  facet_grid(clarity ~ .)
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = color)) +
+  facet_grid(.~cut)
+```
+
+# facet_wrap()
+
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = color, fill = cut))+
+  facet_wrap( ~ cut)
+
+```
+
+## scales
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = color, fill = cut)) +
+  facet_wrap( ~ cut, scales = "free_y")
+```
+
+
+In this tutorial, you learned how to make bar charts; but much of what you learned applies to other types of charts as well. Here’s what you should know:
+
+1. Bar charts are the basis for histograms, which means that you can interpret histograms in a similar way.
+2. Bars are not the only geom in ggplot2 that use the fill aesthetic. You can use both fill and color aesthetics with any geom that has an “interior” region.
+3. You can use the same position adjustments with any ggplot2 geom: "identity", "stack", "dodge", "fill", "nudge", and "jitter" (we’ll learn about "nudge" and "jitter" later). Each geom comes with its own sensible default.
+4. You can facet any ggplot2 plot by adding facet_grid() or facet_wrap() to the plot call.
+
+Bar charts are an excellent way to display the distribution of a categorical variable. In the next tutorial, we’ll meet a set of geoms that display the distribution of a continuous variable. 
+
+
+
+
+# Histogramas
+
+```{r}
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = carat))
+```
+
+```{r}
+ggplot(data=diamonds) + geom_histogram(aes(x=carat), binwidth=0.5)
+```
+
+"Good job! The most common diamond size is about 0.5 carats. Larger sizes become progressively less frequent as carat size increases. This accords with general knowledge about diamonds, so you may be prompted to stop exploring the distribution of carat size. But should you?"
+
+#Vemos nuevos patrones al cambiar de bindwidth
+```{r}
+ggplot(data=diamonds) + geom_histogram(aes(x=carat), binwidth=0.5)
+
+```
+
+"Good job! The new binwidth reveals a new phenomena: carat sizes like 0.5, 0.75, 1, 1.5, and 2 are much more common than carat sizes that do not fall near a common fraction. Why might this be?"
+
+```{r}
+ggplot(data=diamonds) + geom_histogram(aes(x=carat), binwidth=0.01)
+
+```
+
+"Good job! The new binwidth reveals another phenomena: each peak is very right skewed. In other words, diamonds that are 1.01 carats are much more common than diamonds that are .99 carats. Why would that be?"
+
+
+
+## Recrear el siguiente grafico
+
+```{r}
+```
+
+
+```{r}
+ggplot(data=diamonds) + geom_histogram(aes(x=price, fill=cut, binwidth=1000, boundary=0))
+```
+
+
+But this display has some shortcomings:
+
+* it is difficult to see the “shapes” of the individual distributions
+* it is difficult to compare the individual distributions, because they do not share a common baseline value for y
+
+A solution
+
+We can improve the plot by using a different geom to display the distributions of price values. ggplot2 includes three geoms that display the same information as a histogram, but in different ways:
+
+    geom_freqpoly()
+    geom_density()
+    geom_dotplot()
+
+# frequency polygons
+
+```{r}
+ggplot(data = diamonds) +
+  geom_freqpoly(mapping = aes(x = carat), binwidth = 0.25, boundary = 0)
+```
+
+```{r}
+
+ggplot(data = diamonds) +
+  geom_freqpoly(mapping = aes(x = carat, color=cut), binwidth = 0.25, boundary = 0)
+```
+
+geom_density()
+
+Our frequency polygon highlights a second shortcoming with our graph: it is difficult to compare the shapes of the distributions because some sub-groups contain more diamonds than others. This compresses smaller subgroups into the bottom of the graph.
+
+
+Density curves
+
+geom_density() plots a kernel density estimate (i.e. a density curve) for each distribution. This is a smoothed representation of the data, analogous to a smoothed histogram.
+
+Density curves do not plot count on the y
+axis but density, which is analagous to the count divided by the total number of observations. Densities makes it easy to compare the distributions of sub-groups. When you plot multiple sub-groups, each density curve will contain the same area under its curve.
+
+```{r}
+ggplot(data = diamonds) +
+  geom_density(mapping = aes(x = price, color = cut))
+```
+
+
+Density parameters
+
+Density plots do not take bin, binwidth, and boundary parameters. Instead they recognize kernel and smoothing parameters that are used in the density fitting algorithm, which is fairly sophisticated.
+
+In practice, you can obtain useful results quickly with the default parameters of geom_density(). If you’d like to learn more about density estimates and their tuning parameters, begin with the help page at ?geom_density().
+geom_dotplot()
+
+ggplot2 provides a final geom for displaying one dimensional distributions: geom_dotplot(). geom_dotplot() represents each observation with a dot and then stacks dots within bins to create the semblance of a histogram.
+
+Dotplots can provide an intuitive display of the data, but they have several shortcomings. Dotplots are not ideal for large data sets like diamonds, and provide meaningless y
+axis labels. I also find that the tuning parameters of geom_dotplot() make dotplots too slow to work with for EDA.
+
+```{r}
+ggplot(data = mpg) +
+  geom_dotplot(mapping = aes(x = displ), dotsize = 0.5, stackdir = "up", stackratio = 1.1)
+
+```
+
+Exercise 9 - Facets
+
+Instead of changing geoms, you can make the sub-groups in our original plot easier to compare by facetting the data. Extend the code below to facet by cut.
+
+```{r}
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = price, fill = cut), binwidth = 1000, boundary = 0)+
+  facet_wrap(~cut)
+
+```
+
+Recap
+
+In this tutorial, you learned how to visualize distributions with histograms, frequency polygons, and densities. But what should you look for in these visualizations?
+
+* Look for places with lots of data. Tall bars reveal the most common values in your data; you can expect these values to be the “typical values” for your variable.
+
+* Look for places with little data. Short bars reveal uncommon values. These values appear rarely and you might be able to figure out why.
+
+* Look for outliers. Bars that appear away from the bulk of the data are outliers, special cases that may reveal unexpected insights.
+
+* Sometimes outliers cannot be seen in a plot, but can be inferred from the range of the x axis. For example, many of the plots in this tutorial seemed to extend well past the end of the data. Why? Because the range was stretched to include outliers. When your data set is large, like diamonds, the bar that describes an outlier may be invisible (i.e. less than one pixel high).
+
+* Look for clusters.
+
+* Look for shape. The shape of a histogram can often indicate whether or not a variable behaves according to a known probability distribution.
+
+The most important thing to remember about histograms, frequency polygons, and dotplots is to explore different binwidths. The binwidth of a histogram determines what information the histogram displays. You cannot predict ahead of time which binwidth will reveal unexpected information.
+
+
+
+# Boxplots and counts
+
+Boxplots display the relationship between a continuous variable and a categorical variable. Count plots display the relationship between two categorical variables. In this tutorial, you will learn how to use both. You will learn how to:
+
+    Make and interpret boxplots
+    Rotate boxplots by flipping the coordinate system of your plot
+    Use violin plots and dotplots, two geoms that are similar to boxplots
+    Make and interpret count plots
+
+The tutorial is adapted from R for Data Science by Hadley Wickham and Garrett Grolemund, published by O’Reilly Media, Inc., 2016, ISBN: 9781491910399. You can purchase the book at shop.oreilly.com.
+
+The tutorial uses the ggplot2 and dplyr packages, which have been pre-loaded for your convenience.
+
+
+```{r}
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = class, y = hwy))
+
+```
+
+
+Categorical and continuous
+
+geom_boxplot() expects the y
+axis to be continuous, but accepts categorical variables on the x axis. For example, here class is categorical. geom_boxplot() will automatically plot a separate boxplot for each value of x. This makes it easy to compare the distributions of points with different values of x.
+
+
+## Recrear el grafico
+```{r}
+ggplot(data=diamonds)+ geom_boxplot(aes(x=cut, y=price))
+
+```
+
+You can change how outliers look in your boxplot with the parameters outlier.color, outlier.fill, outlier.shape, outlier.size, outlier.stroke, and outlier.alpha (outlier.shape takes a number from 1 to 25).
+
+Unfortunately, you can’t tell geom_boxplot() to ignore outliers completely, but you can make outliers disappear by setting outlier.alpha = 0. Try it in the plot below.
+
+```{r}
+ggplot(data = diamonds) +
+  geom_boxplot(mapping = aes(x = cut, y = price), outlier.shape  = 24, 
+               outlier.fill = "white", outlier.stroke = 0.25)
+```
+
+
+### ocultar outliers
+
+```{r}
+ggplot(data = diamonds) +
+  geom_boxplot(mapping = aes(x = cut, y = price), outlier.alpha = 0)
+```
+
+Aesthetics
+
+Boxplots recognize the following aesthetics: alpha, color, fill, group, linetype, shape, size, and weight.
+
+Of these group can be the most useful. Consider the plot below. It uses a continuous variable on the x
+axis. As a result, geom_boxplot() is not sure how to split the data into categories: it lumps all of the data into a single boxplot. The result reveals little about the relationship between carat and price.
+
