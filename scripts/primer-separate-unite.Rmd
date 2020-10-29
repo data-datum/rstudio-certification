@@ -1,0 +1,22 @@
+---
+title: "primer-separate-unite"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+
+```{r}
+library(tidyverse)
+hurricanes %>% 
+  separate(col = date, into = c("year","month","day")) %>% 
+  separate(col = year, into = c("century", "year"), sep = 2) %>%
+  unite(col="date", year, month, day, sep="-")%>%
+  unite(col="date", century, date, sep="")
+```
+

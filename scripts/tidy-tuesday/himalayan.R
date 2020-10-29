@@ -107,3 +107,30 @@ peaks_eb <- peaks_summarized %>%
   arrange(desc(pct_death)) %>%
   add_ebb_estimate(member_deaths, members)
 
+
+peaks_eb %>%
+  ggplot(aes(pct_death, .fitted)) +
+  geom_point(aes(size = members, color = members)) +
+  geom_abline(color = "red") +
+  scale_x_continuous(labels = percent) +
+  scale_y_continuous(labels = percent) +
+  scale_color_continuous(trans = "log10") +
+  labs(x = "Death rate (raw)",
+       y = "Death rate (empirical Bayes adjusted)")
+
+
+
+peaks_eb %>%
+  filter(members >= 200) %>%
+  arrange(desc(.fitted)) %>%
+  mutate(peak_name = fct_reorder(peak_name, .fitted)) %>%
+  ggplot(aes(.fitted, peak_name)) +
+  geom_point(aes(size = members)) +
+  geom_errorbarh(aes(xmin = .low, xmax = .high)) +
+  expand_limits(x = 0) +
+  scale_x_continuous(labels = percent) +
+  labs(x = "Death rate (empirical Bayes adjusted + 95% credible interval)",
+       y = "",
+       title = "How deadly is each peak in the Himalayas?",
+       subtitle = "Only peaks that at least 200 climbers have attempted")
+

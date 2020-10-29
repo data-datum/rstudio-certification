@@ -14,8 +14,6 @@ library(tidyverse)
 ```
 
 
-
-
 ```{r}
 ggplot(data = diamonds) +
   geom_bar(mapping = aes(x = cut, fill = cut))
@@ -323,4 +321,247 @@ Boxplots recognize the following aesthetics: alpha, color, fill, group, linetype
 
 Of these group can be the most useful. Consider the plot below. It uses a continuous variable on the x
 axis. As a result, geom_boxplot() is not sure how to split the data into categories: it lumps all of the data into a single boxplot. The result reveals little about the relationship between carat and price.
+
+
+
+How to “cut” a continuous variable
+
+ggplot2 provides three helper functions that you can use to split a continuous variable into categories. Each takes a continuous vector and returns a categorical vector that assigns each value to a group. For example, cut_interval() bins a vector into n equal length bins.
+
+continuous_vector <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+continuous_vector
+
+##  [1]  1  2  3  4  5  6  7  8  9 10
+
+cut_interval(continuous_vector, n = 3)
+
+##  [1] [1,4]  [1,4]  [1,4]  [1,4]  (4,7]  (4,7]  (4,7]  (7,10] (7,10] (7,10]
+## Levels: [1,4] (4,7] (7,10]
+
+The cut functions
+
+The three cut functions are
+
+    cut_interval() which makes n groups with equal range
+    cut_number() which makes n groups with (approximately) equal numbers of observations
+    cut_width() which makes groups with width width
+
+Use one of three functions below to bin continuous_vector into groups of width = 2.
+
+
+Exercise 4 - Apply a cut function
+
+When you set the group
+aesthetic of a boxplot, geom_boxplot() will draw a separate boxplot for each collection of observations that have the same value of whichever vector you map to group
+
+.
+
+This means we can split our carat plot by mapping group
+to the output of a cut function, as in the code below. Study the code, then modify it to create a separate boxplot for each 0.25 wide interval of carat.
+
+
+```{r}
+ggplot(data = diamonds) +
+  geom_boxplot(mapping = aes(x = carat, y = price, group = cut_interval(carat, n = 2)))
+```
+
+
+```{r}
+ggplot(data = diamonds) +
+  geom_boxplot(mapping = aes(x = carat, y = price, group = cut_width(carat, width = 0.25)))
+```
+
+
+
+## coord_flip()
+```{r}
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = class, y = hwy))+
+  coord_flip()
+```
+
+Similar Geoms
+geom_dotplot()
+
+Boxplots provide a quick way to represent a distribution, but they leave behind a lot of information. ggplot2 supplements boxplots with two geoms that show more information.
+
+The first is geom_dotplot(). If you set the binaxis parameter of geom_dotplot() to "y", geom_dotplot() behaves like geom_boxplot(), display a separate distribution for each group of data.
+
+Here each group functions like a vertical histogram. Add the parameter stackdir = "center" then re-run the code. Can you interpret the results?
+
+```{r}
+ggplot(data = mpg) +
+  geom_dotplot(mapping = aes(x = class, y = hwy), binaxis = "y", 
+               dotsize = 0.5, binwidth = 1)
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_dotplot(mapping = aes(x = class, y = hwy), binaxis = "y", 
+               dotsize = 0.5, binwidth = 1, stackdir = "center")
+```
+
+
+geom_violin()
+
+geom_violin() provides a second alternative to geom_boxplot(). A violin plot uses densities to draw a smoothed version of the centered dotplot you just made.
+
+You can think of a violin plot as an outline drawn around the edges of a centered dotplot. Each “violin” spans the range of the data. The violin is thick where there are many values, and thin where there are few.
+
+Convert the plot below from a boxplot to a violin plot. Note that violin plots do not use the parameters you saw for dotplots.
+
+```{r}
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = class, y = hwy))
+
+```
+
+
+```{r}
+ggplot(data = mpg) +
+  geom_violin(mapping = aes(x = class, y = hwy))
+```
+
+
+```{r}
+ggplot(data = mpg) +
+  geom_violin(mapping = aes(x = class, y = hwy), draw_quantiles =  c(0.25, 0.5, 0.75))
+```
+
+
+geom_count()
+
+Boxplots provide an efficient way to explore the interaction of a continuous variable and a categorical variable. But what if you have two categorical variables?
+
+You can see how observations are distributed across two categorical variables with geom_count(). geom_count() draws a point at each combination of values from the two variables. The size of the point is mapped to the number of observations with this combination of values. Rare combinations will have small points, frequent combinations will have large points.
+
+
+```{r}
+ggplot(data = diamonds) +
+  geom_count(mapping = aes(x = cut, y = clarity))
+```
+
+Heat maps
+
+Heat maps provide a second way to visualize the relationship between two categorical variables. They work like count plots, but use a fill color instead of a point size, to display the number of observations in each combination.
+
+
+```{r}
+diamonds %>% 
+   count(cut, clarity) %>% 
+   ggplot() +
+     geom_tile(mapping = aes(x = cut, y = clarity, fill = n))
+```
+
+reproducir el siguiente heatmap
+```{r}
+diamonds %>% count(cut, color) %>% ggplot()+ geom_tile(aes(x=color, y=cut, fill=n))
+
+```
+
+# Boxplot Recap 
+
+Recap
+
+Boxplots, dotplots and violin plots provide an easy way to look for relationships between a continuous variable and a categorical variable. Violin plots convey a lot of information quickly, but boxplots have a head start in popularity — they were easy to use when statisticians had to draw graphs by hand.
+
+In any of these graphs, look for distributions, ranges, medians, skewness or anything else that catches your eye to change in an unusual way from distribution to distribution. Often, you can make patterns even more revealing with the fct_reorder() function from the forcats package (we’ll wait to learn about forcats until after you study factors).
+Count plots and heat maps help you see how observations are distributed across the interactions of two categorical variables. 
+
+
+---
+# Scatterplots
+
+A scatterplot displays the relationship between two continuous variables. Scatterplots are one of the most common types of graphs—in fact, you’ve met scatterplots already in Visualization Basics.
+
+In this tutorial, you’ll learn how to:
+
+    Make new types of scatterplots with geom_text() and geom_jitter()
+    Add multiple layers of geoms to a plot
+    Enhance scatterplots with geom_smooth(), geom_rug(), and geom_repel()
+    Change the coordinate system of a plot
+
+The tutorial is adapted from R for Data Science by Hadley Wickham and Garrett Grolemund, published by O’Reilly Media, Inc., 2016, ISBN: 9781491910399. You can purchase the book at shop.oreilly.com.
+
+The tutorial uses the ggplot2, ggrepel, and dplyr packages, which have been pre-loaded for your convenience.
+
+
+## Scatterplots
+Review 1 - geom_point()
+
+In Visualization Basics, you learned how to make a scatterplot with geom_point().
+
+The code below summarises the mpg data set and begins to plot the results. Finish the plot with geom_point(). Put mean_cty on the x
+axis and mean_hwy on the y axis.
+
+
+```{r}
+mpg %>% 
+  group_by(class) %>% 
+  summarise(mean_cty = mean(cty), mean_hwy = mean(hwy)) %>% 
+  ggplot()+
+  geom_point(aes(x=mean_cty, y=mean_hwy))
+```
+
+geom_text()
+
+geom_text() and geom_label() create scatterplots that use words instead of points to display data. Each requires the extra aesthetic label, which you should map to a variable that contains text to display for each observation.
+
+Convert the plot below from geom_point() to geom_text() and map the label aesthetic to the class variable. When you are finished convert the code to geom_label() and rerun the plot. Can you spot the difference?
+
+
+```{r}
+mpg %>% 
+  group_by(class) %>% 
+  summarise(mean_cty = mean(cty), mean_hwy = mean(hwy)) %>% 
+  ggplot() +
+    geom_text(mapping = aes(x = mean_cty, y = mean_hwy, label = class))
+
+mpg %>% 
+  group_by(class) %>% 
+  summarise(mean_cty = mean(cty), mean_hwy = mean(hwy)) %>% 
+  ggplot() +
+    geom_label(mapping = aes(x = mean_cty, y = mean_hwy, label = class))
+    
+```
+
+geom_smooth()
+
+In Visualization Basics, you met geom_smooth(), which provides a summarised version of a scatterplot.
+
+geom_smooth() uses a model to fit a smoothed line to the data and then visualizes the results. By default, geom_smooth() fits a loess smooth to data sets with less than 1,000 observations, and a generalized additive model to data sets with more than 1,000 observations.
+
+method
+
+You can use the method parameter of geom_smooth() to fit and display other types of model lines. To do this, pass method the name of an R modeling function for geom_smooth() to use, such as lm (for linear models) or glm (for generalized linear models).
+
+In the code below, use geom_smooth() to draw the linear model line that fits the data.
+
+```{r}
+mpg %>% 
+  group_by(class) %>% 
+  summarise(mean_cty = mean(cty), mean_hwy = mean(hwy)) %>% 
+  ggplot() +
+    geom_smooth(mapping = aes(x = mean_cty, y = mean_hwy), method = lm)
+```
+
+Layers
+Add a layer
+
+geom_smooth() becomes much more useful when you combine it with geom_point() to create a scatterplot that contains both:
+
+    raw data
+    a trend line
+
+In ggplot2, you can add multiple geoms to a plot by adding multiple geom functions to the plot call. For example, the code below creates a plot that contains both points and a smooth line. Imagine what the results will look like in your head, and then run the code to see if you are right.
+
+
+```{r}
+mpg %>% 
+  group_by(class) %>% 
+  summarise(mean_cty = mean(cty), mean_hwy = mean(hwy)) %>% 
+  ggplot() +
+    geom_point(mapping = aes(x = mean_cty, y = mean_hwy)) +
+    geom_smooth(mapping = aes(x = mean_cty, y = mean_hwy), method = lm) 
+```
 
